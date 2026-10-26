@@ -1,0 +1,1068 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>GFED Fire Carbon Dashboard</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="Fire carbon emissions from GFED5.1, 1997-2025: gridded maps of amount, unusual years, trends and land cover, with charts for the world, a GFED biome region or any country.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..100,500..800&family=Public+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout (after Global Forest Watch dashboards): a top bar picks the area, fire type, measure and
+   years; a scrolling column of chart cards sits left of a large gridded map that stays put.
+   Clicking the map picks the area. Light like the paper figures, or dark, following the browser.
+   Under 1000px the map goes on top and the page scrolls. */
+:root {
+  color-scheme: light;
+  --bg: #f1f1ed;
+  --surface: #ffffff;
+  --ink: #1a1b1c;
+  --ink-2: #4f5357;
+  --muted: #868a8f;
+  --line: #e4e5e0;
+  --axis: #c8cac4;
+  --accent: #c0461d;
+  --accent-wash: #fbebe3;
+  --ocean: #edf2f5;
+  --land: #e6e4de;
+  --border: #ffffff;
+  --grat: #dbe3e9;
+  --rim: #c2cdd5;
+  --seq-0: #fdebd3; --seq-1: #f7b27a; --seq-2: #e3683a; --seq-3: #b5321e; --seq-4: #5e1010;
+  --div-neg: #1c5cab; --div-neg-2: #86b6ef; --div-mid: #ecebe6; --div-pos-2: #ef9a8e; --div-pos: #b3261e;
+  --g-forest: #008300; --g-deforestation: #e34948; --g-other: #2a78d6;
+  --g-savanna: #eda100; --g-cropland: #6250d6; --g-peat: #eb6834; --g-total: #a7a59f;
+  --s-overall: #7a5aa6; --s-clean: #2f7d4f;
+  --outline: rgba(70, 74, 78, .35); --circ: rgba(26, 27, 28, .10); --circ-h: rgba(26, 27, 28, .22); --legend-bg: rgba(255, 255, 255, .94);
+  --font-display: "Archivo", "Arial Narrow", "Helvetica Neue", Arial, sans-serif;
+  --font-body: "Public Sans", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --font-data: "IBM Plex Mono", ui-monospace, Consolas, monospace;
+  --r: 8px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --bg: #111213; --surface: #1a1b1d; --ink: #eceef0; --ink-2: #b9bdc2; --muted: #858a90; --line: #2a2c30; --axis: #3b3f44;
+    --accent: #ec8454; --accent-wash: #3a2318;
+    --ocean: #131b22; --land: #27292c; --border: #121315; --grat: #212a32; --rim: #33404a;
+    --seq-0: #4a1f12; --seq-1: #8a2d16; --seq-2: #d0562a; --seq-3: #f7a35f; --seq-4: #ffe6b8;
+    --div-neg: #5598e7; --div-neg-2: #2c4f7c; --div-mid: #34363a; --div-pos-2: #84403a; --div-pos: #e66767;
+    --g-forest: #008300; --g-deforestation: #e66767; --g-other: #3987e5;
+    --g-savanna: #c98500; --g-cropland: #9085e9; --g-peat: #d95926; --g-total: #6e6c67;
+    --s-overall: #9a82cf; --s-clean: #3f9d63;
+    --outline: rgba(205, 210, 215, .22); --circ: rgba(240, 240, 240, .10); --circ-h: rgba(240, 240, 240, .24); --legend-bg: rgba(26, 27, 29, .92);
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #111213; --surface: #1a1b1d; --ink: #eceef0; --ink-2: #b9bdc2; --muted: #858a90; --line: #2a2c30; --axis: #3b3f44;
+  --accent: #ec8454; --accent-wash: #3a2318;
+  --ocean: #131b22; --land: #27292c; --border: #121315; --grat: #212a32; --rim: #33404a;
+  --seq-0: #4a1f12; --seq-1: #8a2d16; --seq-2: #d0562a; --seq-3: #f7a35f; --seq-4: #ffe6b8;
+  --div-neg: #5598e7; --div-neg-2: #2c4f7c; --div-mid: #34363a; --div-pos-2: #84403a; --div-pos: #e66767;
+  --g-forest: #008300; --g-deforestation: #e66767; --g-other: #3987e5;
+  --g-savanna: #c98500; --g-cropland: #9085e9; --g-peat: #d95926; --g-total: #6e6c67;
+  --s-overall: #9a82cf; --s-clean: #3f9d63;
+  --outline: rgba(205, 210, 215, .22); --circ: rgba(240, 240, 240, .10); --circ-h: rgba(240, 240, 240, .24); --legend-bg: rgba(26, 27, 29, .92);
+}
+
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html, body { height: 100%; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 14px/1.45 var(--font-body); display: flex; flex-direction: column; }
+a { color: var(--accent); }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.num { font-family: var(--font-data); font-variant-numeric: tabular-nums; }
+
+/* top bar */
+.bar {
+  display: flex; flex-wrap: wrap; align-items: end; gap: 10px 16px; background: var(--surface);
+  border-bottom: 1px solid var(--line); padding-block: 10px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+.brand { margin-right: auto; align-self: center; display: flex; align-items: center; gap: 10px; }
+.brand .mark { width: 22px; height: 22px; border-radius: 5px; background: linear-gradient(160deg, var(--seq-2), var(--seq-4)); }
+.brand b { font: 800 20px/1 var(--font-display); font-stretch: 74%; letter-spacing: .01em; }
+.brand span { color: var(--muted); font: 12px var(--font-data); }
+.f { display: grid; gap: 3px; }
+.f label, .f .lab { font-size: 11.5px; color: var(--muted); }
+select {
+  font: 500 14px/1.2 var(--font-body); color: var(--ink); background: var(--surface);
+  border: 1px solid var(--axis); border-radius: 6px; padding: 0 8px; min-height: 34px; max-width: 100%;
+}
+#area { min-width: 230px; font-weight: 600; }
+.seg { display: inline-flex; border: 1px solid var(--axis); border-radius: 6px; overflow: hidden; background: var(--surface); }
+.seg button { font: 600 13px/1 var(--font-body); color: var(--ink-2); background: transparent; border: 0; padding: 0 11px; min-height: 32px; cursor: pointer; transition: background .2s, color .2s; }
+.seg button + button { border-left: 1px solid var(--axis); }
+.seg button[aria-pressed="true"] { background: var(--ink); color: var(--surface); }
+.toggle { font: 600 13px/1 var(--font-body); color: var(--ink-2); background: var(--surface); border: 1px solid var(--axis); border-radius: 6px; padding: 0 11px; min-height: 34px; cursor: pointer; display: inline-flex; align-items: center; gap: 7px; }
+.toggle[aria-pressed="true"] { border-color: var(--ink); color: var(--ink); }
+.toggle .dot { width: 12px; height: 12px; border-radius: 50%; border: 1.5px solid currentColor; }
+.toggle[aria-pressed="true"] .dot { background: var(--ink); border-color: var(--ink); }
+.period { display: flex; gap: 4px; align-items: center; color: var(--muted); }
+
+/* body: chart column + map */
+.main { flex: 1; min-height: 0; display: grid; grid-template-columns: minmax(360px, 4fr) minmax(0, 7fr); }
+.col { overflow-y: auto; padding: 14px 14px 40px max(14px, env(safe-area-inset-left, 0px)); display: grid; gap: 12px; align-content: start; container-type: inline-size; }
+.area-head { display: flex; align-items: end; justify-content: space-between; gap: 10px; padding: 2px 2px 0; }
+.area-head .kind { font: 12px var(--font-data); color: var(--muted); }
+.area-head h1 { margin: 2px 0 0; font: 800 32px/1 var(--font-display); font-stretch: 72%; }
+.back { font: 600 12.5px/1 var(--font-body); color: var(--accent); background: none; border: 0; cursor: pointer; padding: 4px 0; }
+.kpis { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.kpi { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 10px 12px 8px; min-width: 0; display: grid; gap: 2px; }
+.kpi .k { font-size: 11.5px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.kpi .v { font: 500 23px/1.1 var(--font-data); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.kpi .v small { font-size: 12px; color: var(--ink-2); margin-left: 3px; }
+.kpi .v.up { color: var(--div-pos); } .kpi .v.down { color: var(--div-neg); }
+.kpi .s { font-size: 12px; color: var(--ink-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.kpi svg.spark { width: 100%; height: 22px; display: block; }
+.kpi svg.spark.draw path.l { stroke-dasharray: 1; stroke-dashoffset: 1; animation: spark-draw .9s cubic-bezier(.2, .7, .2, 1) forwards; }
+.kpi svg.spark.draw path.a, .kpi svg.spark.draw circle.e { opacity: 0; animation: spark-fade .4s .7s forwards; }
+@keyframes spark-draw { to { stroke-dashoffset: 0; } }
+@keyframes spark-fade { to { opacity: 1; } }
+.kpi svg.spark.draw path.a { animation-name: spark-fade-a; }
+@keyframes spark-fade-a { to { opacity: .12; } }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 12px 14px 6px; min-width: 0; }
+.card h2 { margin: 0; font: 600 12px/1.2 var(--font-body); color: var(--muted); letter-spacing: .03em; text-transform: uppercase; }
+.card .say { margin: 5px 0 6px; font-size: 14.5px; line-height: 1.4; }
+.card .say b { font-weight: 700; font-variant-numeric: tabular-nums; }
+.up-t { color: var(--div-pos); font-weight: 600; } .down-t { color: var(--div-neg); font-weight: 600; } .flat-t { color: var(--muted); font-weight: 600; }
+.chart { width: 100%; height: 165px; }
+.chart.s { height: 140px; }
+.duo { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+@container (max-width: 520px) { .duo { grid-template-columns: minmax(0, 1fr); } }
+.keys { display: flex; flex-wrap: wrap; gap: 2px 12px; font-size: 12px; color: var(--ink-2); }
+.keys span { display: inline-flex; align-items: center; gap: 5px; }
+.keys i { width: 10px; height: 10px; border-radius: 2px; }
+.keys i.line { height: 3px; width: 14px; }
+.note { margin: 2px 0 8px; font-size: 12px; color: var(--muted); }
+details.about { font-size: 13px; color: var(--ink-2); padding: 4px 2px; }
+details.about summary { cursor: pointer; font-weight: 600; color: var(--ink); }
+details.about p { margin: 6px 0; max-width: 70ch; }
+
+/* map */
+.mapcol { position: relative; min-height: 0; padding: 14px max(14px, env(safe-area-inset-right, 0px)) 14px 0; }
+.mapcard { height: 100%; display: grid; grid-template-rows: auto minmax(0, 1fr) auto; background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); overflow: hidden; }
+.maptools { display: flex; flex-wrap: wrap; gap: 8px 10px; align-items: center; padding: 8px 10px; border-bottom: 1px solid var(--line); }
+.maptools .sp { flex: 1; }
+.stage { position: relative; background: var(--surface); min-height: 0; overflow: hidden; }
+.stage > svg, .stage > canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+canvas.grid { pointer-events: none; opacity: 0; transition: opacity .45s ease; }
+canvas.grid.on { opacity: 1; }
+svg#over { touch-action: none; }
+#base path.sphere { fill: var(--ocean); stroke: var(--rim); stroke-width: .8; vector-effect: non-scaling-stroke; }
+#base path.grat { fill: none; stroke: var(--grat); stroke-width: .5; vector-effect: non-scaling-stroke; }
+#base path.land { fill: var(--land); }
+#over path.unit { fill: transparent; stroke: var(--outline); stroke-width: .5; vector-effect: non-scaling-stroke; cursor: pointer; }
+#over path.unit:hover { stroke: var(--ink); stroke-width: 1.4; }
+#over path.sel { fill: none; stroke: var(--ink); stroke-width: 2.2; vector-effect: non-scaling-stroke; pointer-events: none; }
+#over circle.tot { fill: var(--circ); stroke: var(--ink); stroke-width: 1; vector-effect: non-scaling-stroke; cursor: pointer; }
+#over circle.tot:hover { fill: var(--circ-h); }
+#over circle.tot.selc { stroke: var(--accent); stroke-width: 2; }
+.title-ov { position: absolute; left: 14px; top: 12px; pointer-events: none; }
+.title-ov .t { font: 600 12px/1.2 var(--font-body); color: var(--ink-2); text-transform: uppercase; letter-spacing: .04em; }
+.title-ov .y { font: 800 44px/1 var(--font-display); font-stretch: 68%; color: var(--ink); margin-top: 2px; }
+.zoom { position: absolute; right: 10px; top: 10px; display: grid; gap: 4px; }
+.zoom button { width: 30px; height: 30px; border-radius: 6px; border: 1px solid var(--axis); background: var(--surface); color: var(--ink); font: 600 16px/1 var(--font-body); cursor: pointer; }
+.legend { position: absolute; left: 10px; bottom: 10px; background: var(--legend-bg); border: 1px solid var(--line); border-radius: var(--r); padding: 8px 10px; font-size: 12px; color: var(--ink-2); max-width: calc(100% - 60px); }
+.legend .bar { height: 9px; width: 230px; max-width: 100%; border-radius: 2px; margin: 5px 0 3px; }
+.legend .ticks { display: flex; justify-content: space-between; width: 230px; max-width: 100%; font: 11px var(--font-data); }
+.legend .cats { display: grid; grid-template-columns: 1fr 1fr; gap: 1px 10px; margin-top: 4px; }
+.legend .cats span { display: flex; align-items: center; gap: 6px; }
+.legend i { width: 10px; height: 10px; border-radius: 2px; flex: none; display: inline-block; }
+.legend .sub { color: var(--muted); margin-top: 3px; }
+.tip { position: absolute; pointer-events: none; background: var(--surface); color: var(--ink); border: 1px solid var(--axis); border-radius: 6px; padding: 6px 8px; font-size: 12.5px; line-height: 1.4; box-shadow: 0 4px 14px rgb(0 0 0 / .14); z-index: 5; max-width: 250px; }
+.tip b { display: block; }
+.tip .m { color: var(--muted); }
+.timeline { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-top: 1px solid var(--line); transition: opacity .2s; }
+.timeline.off { opacity: .4; pointer-events: none; }
+.play { flex: none; width: 34px; height: 34px; border-radius: 50%; border: 0; background: var(--accent); color: #fff; cursor: pointer; display: grid; place-items: center; }
+.play svg { width: 12px; height: 12px; }
+.avg { flex: none; font: 600 12.5px/1 var(--font-body); min-height: 30px; padding: 0 10px; border-radius: 6px; border: 1px solid var(--axis); background: var(--surface); color: var(--ink); cursor: pointer; }
+.avg[aria-pressed="true"] { background: var(--ink); color: var(--surface); border-color: var(--ink); }
+.avg:disabled { opacity: .4; cursor: default; }
+.track { flex: 1; min-width: 0; }
+.track input { width: 100%; accent-color: var(--accent); margin: 0; }
+.track.idle input { opacity: .35; }
+.track .ticks { display: flex; justify-content: space-between; font: 11px var(--font-data); color: var(--muted); }
+.loading { position: fixed; inset: 0; display: grid; place-items: center; color: var(--ink-2); background: var(--bg); z-index: 20; }
+.spin { position: absolute; right: 50px; top: 14px; font: 12px var(--font-data); color: var(--muted); }
+
+@media (max-width: 1000px) {
+  body { display: block; height: auto; }
+  .main { display: flex; flex-direction: column; }
+  .mapcol { order: 1; height: 72vh; padding: 12px max(12px, env(safe-area-inset-right, 0px)) 0 max(12px, env(safe-area-inset-left, 0px)); }
+  .col { order: 2; overflow: visible; padding: 12px max(12px, env(safe-area-inset-right, 0px)) 32px max(12px, env(safe-area-inset-left, 0px)); }
+  #area { min-width: 0; width: 100%; }
+  .f.area { flex-basis: 100%; }
+  .title-ov .y { font-size: 32px; }
+}
+@media (max-width: 480px) { .kpis { grid-template-columns: 1fr 1fr; } .kpi:nth-child(3) { grid-column: 1 / -1; } }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+</head>
+<body>
+<p class="loading" id="loading">Loading GFED data&hellip;</p>
+
+<div class="bar">
+  <div class="brand"><span class="mark" aria-hidden="true"></span><b>GFED Fire Carbon</b><span>GFED5.1 &middot; 1997&ndash;2025</span></div>
+  <div class="f area"><label for="area">Area</label><select id="area"></select></div>
+  <div class="f"><label for="type">Fire type</label><select id="type"></select></div>
+  <div class="f"><span class="lab" id="lbl-m">Charts show</span>
+    <div class="seg" role="group" aria-labelledby="lbl-m"><button type="button" id="m-C" aria-pressed="true">Carbon</button><button type="button" id="m-BA" aria-pressed="false">Burned area</button></div></div>
+  <div class="f"><label for="from">Years</label><div class="period"><select id="from" aria-label="From"></select>&ndash;<select id="to" aria-label="To"></select></div></div>
+</div>
+
+<div class="main">
+  <section class="col" id="col" aria-label="Charts for the selected area">
+    <div class="area-head"><div><div class="kind" id="a-kind"></div><h1 id="a-name"></h1></div><button type="button" class="back" id="back" hidden>&larr; World</button></div>
+    <div class="kpis" id="kpis"></div>
+
+    <article class="card"><h2>Emissions every year</h2><p class="say" id="say-annual"></p>
+      <div class="keys" id="keys-annual"></div><div class="chart" id="c-annual"></div></article>
+
+    <article class="card"><h2>Trend by fire type</h2><p class="say" id="say-trend"></p>
+      <div class="chart" id="c-trend" style="height:190px"></div><p class="note">Theil&ndash;Sen slope, % of mean per year. Filled dot: significant (Mann&ndash;Kendall p &lt; 0.05).</p></article>
+
+    <article class="card" id="card-forest"><h2>Forest fires, with and without deforestation</h2><p class="say" id="say-forest"></p>
+      <div class="keys"><span><i class="line" style="background:var(--s-overall)"></i>Forest overall</span><span><i class="line" style="background:var(--s-clean)"></i>Without deforestation &amp; ag fires</span><span>dashed: trend</span></div>
+      <div class="chart s" id="c-forest"></div></article>
+
+    <div class="duo">
+      <article class="card"><h2>What burns</h2><p class="say" id="say-lc"></p><div class="chart s" id="c-lc"></div></article>
+      <article class="card"><h2>When fires burn</h2><p class="say" id="say-season"></p><div class="chart s" id="c-season"></div></article>
+    </div>
+
+    <article class="card"><h2 id="rank-title">Largest emitters</h2><p class="say" id="say-rank"></p><div class="chart" id="c-rank" style="height:240px"></div><p class="note">Click a bar to open it.</p></article>
+
+    <details class="about"><summary>About the data</summary>
+      <p>1997&ndash;2001: GFED5.1 total carbon only. 2002&ndash;2022: GFED5.1 with 16 land-cover classes. 2023&ndash;2025: GFED5.1 NRT (VIIRS), same classes; a step at 2023 can partly be the instrument change.</p>
+      <p>Maps: 0.25&deg; GFED cells (about 28 km). Unusual year = that year minus the cell's 2002&ndash;2025 mean. Trend map = per 1&deg; cell, 2002&ndash;2025, Theil&ndash;Sen with Mann&ndash;Kendall; faded cells are not significant.</p>
+      <p>Forest = sparse boreal, boreal, temperate and tropical forest classes; forest overall adds deforestation fires; agricultural fires are GFED's cropland class. Biomes are GFED's 14 basis regions. Border cells are shared between countries by land area at 0.05&deg;.</p>
+      <p>GFED5.1: van der Werf et al. (2025), CC BY 4.0, <a href="https://www.globalfiredata.org" target="_blank" rel="noopener">globalfiredata.org</a>. <a href="explore.html">Full tables &amp; CSV downloads</a> &middot; <a href="https://github.com/RSL-SLU/wildfire" target="_blank" rel="noopener">Source code</a></p>
+    </details>
+  </section>
+
+  <section class="mapcol" aria-label="Map">
+    <div class="mapcard">
+      <div class="maptools">
+        <div class="seg" role="group" aria-label="Map view">
+          <button type="button" data-view="amount" aria-pressed="true">Amount</button>
+          <button type="button" data-view="unusual" aria-pressed="false">Unusual year</button>
+          <button type="button" data-view="trend" aria-pressed="false">Trend</button>
+          <button type="button" data-view="lc" aria-pressed="false">Land cover</button>
+        </div>
+        <span class="sp"></span>
+        <div class="seg" role="group" aria-label="Select by">
+          <button type="button" data-unit="country" aria-pressed="true">Countries</button>
+          <button type="button" data-unit="biome" aria-pressed="false">Biomes</button>
+        </div>
+        <button type="button" class="toggle" id="circles" aria-pressed="false"><span class="dot"></span>Totals as circles</button>
+      </div>
+      <div class="stage" id="stage">
+        <svg id="base" aria-hidden="true"></svg>
+        <canvas class="grid" id="ga" aria-hidden="true"></canvas>
+        <canvas class="grid" id="gb" aria-hidden="true"></canvas>
+        <svg id="over" role="img" aria-label="Interactive world map; click a country or biome to select it"></svg>
+        <div class="title-ov"><div class="t" id="ov-t"></div><div class="y" id="ov-y"></div></div>
+        <div class="zoom"><button type="button" id="zin" aria-label="Zoom in">+</button><button type="button" id="zout" aria-label="Zoom out">&minus;</button><button type="button" id="zfit" aria-label="Whole world" style="font-size:12px">&#x25A2;</button></div>
+        <div class="spin" id="spin" hidden>loading&hellip;</div>
+        <div class="legend" id="legend"></div>
+        <div class="tip" id="tip" hidden></div>
+      </div>
+      <div class="timeline" id="timeline">
+        <button type="button" class="play" id="play" aria-label="Play years"><svg viewBox="0 0 12 12" aria-hidden="true"><path id="play-i" d="M2.5 1v10l8-5z" fill="currentColor"/></svg></button>
+        <button type="button" class="avg" id="avg" aria-pressed="true">Average</button>
+        <div class="track idle"><input type="range" id="year" min="2002" max="2025" value="2025" aria-label="Map year"><div class="ticks" id="ticks"></div></div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/d3-geo-projection@4.0.0/dist/d3-geo-projection.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/plotly.js-basic-dist-min@2.35.2/plotly-basic.min.js"></script>
+<script>
+"use strict";
+
+// =======================================================================================
+// definitions
+// =======================================================================================
+const GROUP_ORDER = ["forest", "deforestation", "other", "savanna", "cropland", "peat"];
+const GSHORT = { forest: "Forest", deforestation: "Deforestation", other: "Tundra & other", savanna: "Savanna & grassland", cropland: "Cropland", peat: "Peat" };
+const TYPES = [
+  { key: "all", name: "All fires", short: "All fires", classes: null },
+  { key: "forest_overall", name: "Forest overall (incl. deforestation)", short: "Forest overall", classes: [2, 3, 7, 12, 16] },
+  { key: "forest_clean", name: "Forest without deforestation & ag fires", short: "Forest w/o deforestation", classes: [2, 3, 7, 12] },
+  { key: "deforestation", name: "Deforestation fires", short: "Deforestation", classes: [16] },
+  { key: "savanna", name: "Savanna, grassland & shrubland", short: "Savanna & grassland", classes: [4, 5, 6, 8, 9, 10, 11] },
+  { key: "cropland", name: "Cropland (agricultural) fires", short: "Cropland", classes: [14] },
+  { key: "peat", name: "Peat fires", short: "Peat", classes: [15] },
+  { key: "other", name: "Tundra & other", short: "Tundra & other", classes: [1, 13] },
+];
+const VIEW_NAME = { amount: "Fire carbon", unusual: "Unusual year", trend: "Trend per year", lc: "What burns most" };
+const SHORT = { "Democratic Republic of the Congo": "DR Congo", "United States of America": "United States",
+  "Central African Republic": "Central African Rep.", "United Republic of Tanzania": "Tanzania", "Republic of the Congo": "Rep. of the Congo" };
+const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+const S = { area: { kind: "world", id: "WORLD" }, type: "all", metric: "C", from: 2002, to: 2025,
+  view: "amount", unit: "country", circles: false, year: "mean", playing: false };
+let META, SERIES, GEO, REGIONS, GS, LCS, GROUPS, YT, YC, T = {}, REGION_OF_COUNTRY = {};
+
+// =======================================================================================
+// statistics
+// =======================================================================================
+const mean = a => a.length ? a.reduce((x, y) => x + y, 0) / a.length : NaN;
+function median(a) { const s = [...a].sort((x, y) => x - y), n = s.length; return n % 2 ? s[(n - 1) / 2] : (s[n / 2 - 1] + s[n / 2]) / 2; }
+function erf(x) {
+  const t = 1 / (1 + 0.3275911 * Math.abs(x));
+  const y = 1 - (((((1.061405429 * t - 1.453152027) * t) + 1.421413741) * t - 0.284496736) * t + 0.254829592) * t * Math.exp(-x * x);
+  return x >= 0 ? y : -y;
+}
+function trend(years, vals) {
+  const n = vals.length, m = mean(vals);
+  if (n < 5 || !(m > 0)) return { mean: m, pct: NaN, p: NaN, sig: false };
+  const sl = []; let s = 0;
+  for (let i = 0; i < n; i++) for (let j = i + 1; j < n; j++) { sl.push((vals[j] - vals[i]) / (years[j] - years[i])); s += Math.sign(vals[j] - vals[i]); }
+  const ties = {}; vals.forEach(v => { const k = v.toFixed(6); ties[k] = (ties[k] || 0) + 1; });
+  let tt = 0; Object.values(ties).forEach(t => { if (t > 1) tt += t * (t - 1) * (2 * t + 5); });
+  const slope = median(sl), v = (n * (n - 1) * (2 * n + 5) - tt) / 18;
+  const z = s === 0 ? 0 : (s - Math.sign(s)) / Math.sqrt(v), p = 1 - erf(Math.abs(z) / Math.SQRT2);
+  return { mean: m, slope, pct: 100 * slope / m, p, sig: p < 0.05, b: median(vals.map((x, i) => x - slope * years[i])) };
+}
+
+// =======================================================================================
+// series access
+// =======================================================================================
+function sumClasses(dict, classes, len) {
+  const out = new Array(len).fill(0);
+  (classes || Object.keys(dict).map(Number)).forEach(c => { const a = dict[String(c)]; if (a) a.forEach((v, i) => { out[i] += v; }); });
+  return out;
+}
+const typeDef = k => TYPES.find(t => t.key === k);
+function series(ent, k = S.type, metric = S.metric) {
+  if (metric === "C" && k === "all") return { years: YT, vals: ent.total };
+  return { years: YC, vals: sumClasses(ent[metric], typeDef(k).classes, YC.length) };
+}
+function groupVals(ent, g, metric = S.metric) { return sumClasses(ent[metric], GROUPS[g].classes, YC.length); }
+function clip(sr) {
+  const years = [], vals = [];
+  sr.years.forEach((y, i) => { if (y >= S.from && y <= S.to) { years.push(y); vals.push(sr.vals[i]); } });
+  return { years, vals };
+}
+function stat(ent, k = S.type, metric = S.metric) { const c = clip(series(ent, k, metric)); return trend(c.years, c.vals); }
+function periodText(k = S.type) { const c = clip(series(SERIES.world, k)); return `${c.years[0]}–${c.years[c.years.length - 1]}`; }
+function entOf(a) { return a.kind === "world" ? SERIES.world : a.kind === "region" ? SERIES.regions[a.id] : SERIES.countries[a.id]; }
+function nameOf(a) {
+  if (a.kind === "world") return "World";
+  if (a.kind === "region") return META.regions.find(r => r.code === a.id)?.name || a.id;
+  return META.countries.find(x => x.iso3 === a.id)?.name || a.id;
+}
+const short = n => SHORT[n] || n;
+// carbon of one place for the map's year ("mean" = average of the selected years)
+function carbonAt(ent, k = S.type) {
+  if (!ent) return NaN;
+  const sr = series(ent, k, "C");
+  if (S.year === "mean") return mean(clip(sr).vals);
+  const i = sr.years.indexOf(S.year);
+  return i < 0 ? NaN : sr.vals[i];
+}
+
+// =======================================================================================
+// formatting
+// =======================================================================================
+const U = () => S.metric === "C" ? "Tg C" : "km²";
+function fmt(v, metric = S.metric) {
+  if (!isFinite(v)) return "–";
+  if (metric === "BA") {
+    if (Math.abs(v) >= 1e6) return (v / 1e6).toFixed(2) + "M";
+    if (Math.abs(v) >= 1e3) return (v / 1e3).toFixed(1) + "k";
+    return v.toFixed(0);
+  }
+  const nd = Math.abs(v) >= 100 ? 0 : Math.abs(v) >= 10 ? 1 : Math.abs(v) >= 1 ? 2 : 3;
+  return v.toLocaleString("en-US", { maximumFractionDigits: nd, minimumFractionDigits: nd });
+}
+function fmtMass(tg) {                     // a small mass in friendly units
+  if (!isFinite(tg)) return "–";
+  if (tg >= 1) return `${fmt(tg, "C")} Tg C`;
+  if (tg >= 1e-3) return `${(tg * 1e3).toFixed(tg >= 0.1 ? 0 : 1)} Gg C`;
+  return `${(tg * 1e6).toFixed(0)} t C`;
+}
+const pct = (v, nd = 1) => isFinite(v) ? `${v >= 0 ? "+" : "−"}${Math.abs(v).toFixed(nd)}%` : "–";
+function trendWords(st) {
+  if (!isFinite(st.pct)) return `<span class="flat-t">no data</span>`;
+  if (!st.sig) return `<span class="flat-t">no clear trend</span> (${pct(st.pct)}/yr)`;
+  return st.pct > 0 ? `<span class="up-t">rising ${pct(st.pct)}/yr</span>` : `<span class="down-t">falling ${pct(st.pct)}/yr</span>`;
+}
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+
+// =======================================================================================
+// colours
+// =======================================================================================
+function readTheme() {
+  const cs = getComputedStyle(document.documentElement), g = n => cs.getPropertyValue(n).trim();
+  T = { surface: g("--surface"), ink: g("--ink"), ink2: g("--ink-2"), muted: g("--muted"), line: g("--line"), axis: g("--axis"),
+    accent: g("--accent"), land: g("--land"), border: g("--border"), total: g("--g-total"), overall: g("--s-overall"), clean: g("--s-clean"),
+    seq: [0, 1, 2, 3, 4].map(i => g(`--seq-${i}`)), div: ["--div-neg", "--div-neg-2", "--div-mid", "--div-pos-2", "--div-pos"].map(g),
+    group: Object.fromEntries(GROUP_ORDER.map(k => [k, g(`--g-${k}`)])) };
+  T.dark = d3.hcl(T.surface).l < 50;
+  const seq = d3.piecewise(d3.interpolateHcl, T.seq), div = d3.piecewise(d3.interpolateRgb, T.div);
+  T.seqLUT = d3.range(256).map(i => seq(i / 255));
+  T.divLUT = d3.range(256).map(i => div(i / 255));
+  // trend cells that are not significant: the same colour washed toward the land
+  T.divWash = T.divLUT.map(c => d3.interpolateRgb(c, T.land)(0.62));
+  T.lcLUT = GROUP_ORDER.map(gk => d3.range(256).map(a => {
+    const t = a ? 0.3 + 0.7 * (a - 1) / 254 : 0;
+    const c = d3.hcl(d3.interpolateRgb(T.land, T.group[gk])(Math.min(1, t * 1.25)));
+    c.l += (T.dark ? 14 : -18) * Math.max(0, t - 0.6) / 0.4;      // more carbon: darker on paper, brighter at night
+    return c.formatHex();
+  }));
+}
+function baseLayout(extra = {}) {
+  const font = { family: getComputedStyle(document.body).fontFamily, size: 11.5, color: T.ink2 };
+  const ax = { gridcolor: T.line, linecolor: T.axis, zerolinecolor: T.axis, tickfont: { color: T.ink2, size: 11 }, fixedrange: true };
+  return Object.assign({ paper_bgcolor: T.surface, plot_bgcolor: T.surface, font, margin: { l: 46, r: 8, t: 8, b: 26 },
+    showlegend: false, bargap: 0.16, hovermode: "x unified",
+    transition: reduceMotion ? undefined : { duration: 380, easing: "cubic-in-out" },
+    hoverlabel: { bgcolor: T.surface, bordercolor: T.axis, font: { color: T.ink, family: font.family } },
+    xaxis: Object.assign({}, ax), yaxis: Object.assign({ rangemode: "tozero" }, ax) }, extra);
+}
+const PC = { displayModeBar: false, responsive: true };
+function shapesFor(years) {
+  const sh = [];
+  const first = YT.find(y => (META.source_by_year[y] || "").includes("NRT"));
+  if (first) sh.push({ type: "rect", xref: "x", yref: "paper", x0: first - 0.5, x1: YT[YT.length - 1] + 0.5, y0: 0, y1: 1, fillcolor: T.line, opacity: 0.6, line: { width: 0 }, layer: "below" });
+  if (S.year !== "mean" && years.includes(S.year)) sh.push({ type: "rect", xref: "x", yref: "paper", x0: S.year - 0.5, x1: S.year + 0.5, y0: 0, y1: 1, fillcolor: T.accent, opacity: 0.14, line: { width: 0 }, layer: "below" });
+  return sh;
+}
+
+// =======================================================================================
+// numbers that count to their new value
+// =======================================================================================
+function tweenNumber(el, to, format) {
+  const from = parseFloat(el.dataset.v);
+  el.dataset.v = to;
+  if (reduceMotion || !isFinite(from) || !isFinite(to)) { el.textContent = format(to); return; }
+  d3.select(el).interrupt().transition().duration(500).ease(d3.easeCubicOut)
+    .tween("text", () => { const i = d3.interpolateNumber(from, to); return t => { el.textContent = format(i(t)); }; });
+}
+function spark(vals, color, draw = false) {
+  const w = 120, h = 22, x = d3.scaleLinear([0, vals.length - 1], [1, w - 1]);
+  const y = d3.scaleLinear([0, d3.max(vals) || 1], [h - 2, 2]);
+  const line = d3.line((d, i) => x(i), d => y(d))(vals), area = d3.area((d, i) => x(i), h, d => y(d))(vals);
+  return `<svg class="spark${draw ? " draw" : ""}" viewBox="0 0 ${w} ${h}" preserveAspectRatio="none" aria-hidden="true"><path class="a" d="${area}" fill="${color}" opacity=".12"/><path class="l" pathLength="1" d="${line}" fill="none" stroke="${color}" stroke-width="1.5" vector-effect="non-scaling-stroke"/><circle class="e" cx="${x(vals.length - 1)}" cy="${y(vals[vals.length - 1])}" r="2.2" fill="${color}"/></svg>`;
+}
+// grow the bars of a chart up from zero, then settle on the real values
+function growBars(id, traces, layout) {
+  Plotly.react(id, traces.map(t => Object.assign({}, t, { y: t.y.map(() => 0) })), Object.assign({}, layout, { transition: undefined }), PC);
+  setTimeout(() => Plotly.react(id, traces, Object.assign({}, layout, { transition: { duration: 650, easing: "cubic-out" } }), PC), 40);
+}
+
+// =======================================================================================
+// chart cards
+// =======================================================================================
+let lastWidgetKey = "", lineAnim = 0;
+function renderWidgets() {
+  const a = S.area, ent = entOf(a), name = nameOf(a), tname = typeDef(S.type).short.toLowerCase();
+  // a new area / fire type / period replays the entry animations; a new map year does not
+  const wkey = `${a.kind}:${a.id}|${S.type}|${S.metric}|${S.from}|${S.to}`;
+  const fresh = wkey !== lastWidgetKey && !reduceMotion;
+  lastWidgetKey = wkey;
+  document.getElementById("a-name").textContent = name;
+  document.getElementById("a-kind").textContent = a.kind === "world" ? "Whole world" : a.kind === "region" ? `GFED biome region · ${a.id}` : "Country";
+  document.getElementById("back").hidden = a.kind === "world";
+
+  // KPIs with sparklines
+  const st = stat(ent), c = clip(series(ent)), last = c.years[c.years.length - 1], lastV = c.vals[c.vals.length - 1];
+  const foS = clip(series(ent, "forest_overall")).vals, allS = clip({ years: YC, vals: sumClasses(ent[S.metric], null, YC.length) }).vals;
+  const shareS = allS.map((v, i) => v > 0 ? 100 * foS[i] / v : 0), share = mean(allS) > 0 ? 100 * mean(foS) / mean(allS) : NaN;
+  const dir = !st.sig || !isFinite(st.pct) ? "" : st.pct > 0 ? "up" : "down";
+  const k = document.getElementById("kpis");
+  if (!k.childElementCount) k.innerHTML = `
+    <div class="kpi"><div class="k" id="k1k"></div><div class="v"><span id="k1"></span><small id="k1u"></small></div><div id="k1s"></div><div class="s" id="k1n"></div></div>
+    <div class="kpi"><div class="k">Trend</div><div class="v" id="k2w"><span id="k2"></span><small>/yr</small></div><div id="k2s"></div><div class="s" id="k2n"></div></div>
+    <div class="kpi"><div class="k">Forest share</div><div class="v"><span id="k3"></span><small>%</small></div><div id="k3s"></div><div class="s" id="k3n"></div></div>`;
+  document.getElementById("k1k").textContent = `Mean / yr, ${periodText()}`;
+  tweenNumber(document.getElementById("k1"), st.mean, v => fmt(v));
+  document.getElementById("k1u").textContent = U();
+  document.getElementById("k1s").innerHTML = spark(c.vals, T.accent, fresh);
+  document.getElementById("k1n").textContent = `${typeDef(S.type).short} · ${last}: ${fmt(lastV)}`;
+  tweenNumber(document.getElementById("k2"), st.pct, v => pct(v));
+  document.getElementById("k2w").className = `v ${dir}`;
+  const tl = isFinite(st.slope) ? c.years.map(y => st.b + st.slope * y) : c.vals;
+  document.getElementById("k2s").innerHTML = spark(tl.map(v => Math.max(v, 0)), dir === "up" ? T.div[4] : dir === "down" ? T.div[0] : T.muted, fresh);
+  document.getElementById("k2n").textContent = `${st.sig ? "significant" : "not significant"} (p ${isFinite(st.p) ? "= " + st.p.toFixed(2) : "–"})`;
+  tweenNumber(document.getElementById("k3"), share, v => isFinite(v) ? v.toFixed(0) : "–");
+  document.getElementById("k3s").innerHTML = spark(shareS, T.group.forest, fresh);
+  document.getElementById("k3n").textContent = "forest + deforestation fires";
+
+  // 1. every year, by land cover
+  const tr = [];
+  if (S.metric === "C") {
+    const pre = YT.filter(y => y < YC[0]);
+    tr.push({ type: "bar", x: pre, y: pre.map(y => ent.total[YT.indexOf(y)]), marker: { color: T.total }, hovertemplate: "Total: %{y:,.1f}<extra></extra>" });
+  }
+  const present = GROUP_ORDER.filter(g => groupVals(ent, g).some(v => v > 0));
+  present.forEach(g => tr.push({ type: "bar", x: YC, y: groupVals(ent, g), marker: { color: T.group[g], line: { color: T.surface, width: 0.6 } }, hovertemplate: `${GSHORT[g]}: %{y:,.${S.metric === "C" ? 2 : 0}f}<extra></extra>` }));
+  document.getElementById("keys-annual").innerHTML = present.map(g => `<span><i style="background:var(--g-${g})"></i>${GSHORT[g]}</span>`).join("") + (S.metric === "C" ? `<span><i style="background:var(--g-total)"></i>1997–2001 total</span>` : "");
+  const lay1 = baseLayout({ barmode: "stack", shapes: shapesFor(YT) });
+  lay1.yaxis.title = { text: U(), font: { size: 11 } };
+  if (fresh) growBars("c-annual", tr, lay1); else Plotly.react("c-annual", tr, lay1, PC);
+  const sr = series(ent), yv = S.year !== "mean" ? sr.vals[sr.years.indexOf(S.year)] : NaN;
+  document.getElementById("say-annual").innerHTML = `${esc(name)}: <b>${fmt(st.mean)}</b> ${U()} a year from ${tname}, ${periodText()}, ${trendWords(st)}.` +
+    (isFinite(yv) ? ` In ${S.year}: <b>${fmt(yv)}</b> (${pct(100 * (yv / st.mean - 1), 0)} vs mean).` : "");
+
+  // 2. trend by fire type
+  const rows = TYPES.map(t => ({ t, st: stat(ent, t.key) })).filter(r => r.st.mean > 0).reverse();
+  const col = r => !isFinite(r.st.pct) ? T.muted : r.st.pct >= 0 ? T.div[4] : T.div[0];
+  Plotly.react("c-trend", [{ type: "scatter", mode: "markers", x: rows.map(r => r.st.pct), y: rows.map(r => r.t.short),
+    marker: { size: 11, color: rows.map(r => r.st.sig ? col(r) : T.surface), line: { color: rows.map(col), width: 2 } },
+    customdata: rows.map(r => [fmt(r.st.mean), isFinite(r.st.p) ? r.st.p.toFixed(3) : "–"]),
+    hovertemplate: "%{y}: <b>%{x:+.2f}%/yr</b> · mean %{customdata[0]} · p = %{customdata[1]}<extra></extra>" }],
+    baseLayout({ hovermode: "closest", margin: { l: 150, r: 12, t: 4, b: 26 },
+      xaxis: { gridcolor: T.line, zeroline: true, zerolinecolor: T.ink2, ticksuffix: "%", tickfont: { color: T.ink2, size: 11 }, fixedrange: true },
+      yaxis: { tickfont: { color: T.ink, size: 11 }, fixedrange: true, automargin: true, tickmode: "array", tickvals: rows.map(r => r.t.short) } }), PC);
+  const best = rows.filter(r => r.st.sig).sort((x, y) => Math.abs(y.st.pct) - Math.abs(x.st.pct))[0];
+  document.getElementById("say-trend").innerHTML = best
+    ? `Strongest clear change: <b>${esc(best.t.short.toLowerCase())}</b>, ${trendWords(best.st)}.`
+    : `No fire type shows a clear trend over ${periodText()}.`;
+
+  // 3. forest
+  const fo = series(ent, "forest_overall"), fc = series(ent, "forest_clean");
+  const hasForest = fo.vals.some(v => v > 0);
+  document.getElementById("card-forest").hidden = !hasForest;
+  if (hasForest) {
+    const t1 = stat(ent, "forest_overall"), t2 = stat(ent, "forest_clean");
+    drawForestLines([[fo, t1, T.overall, "Forest overall"], [fc, t2, T.clean, "Without deforestation"]], fresh);
+    const sh = t1.mean > 0 ? 100 * (t1.mean - t2.mean) / t1.mean : NaN;
+    document.getElementById("say-forest").innerHTML = `Overall ${trendWords(t1)}; without deforestation ${trendWords(t2)}. Deforestation is <b>${isFinite(sh) ? sh.toFixed(0) : "–"}%</b> of forest fire.`;
+  }
+
+  // 4. what burns
+  const shares = GROUP_ORDER.map(g => ({ g, v: mean(clip({ years: YC, vals: groupVals(ent, g) }).vals) })).filter(d => d.v > 0).sort((x, y) => y.v - x.v);
+  const tot = shares.reduce((s, d) => s + d.v, 0);
+  Plotly.react("c-lc", [{ type: "bar", orientation: "h", x: shares.map(d => 100 * d.v / tot), y: shares.map(d => GSHORT[d.g]),
+    marker: { color: shares.map(d => T.group[d.g]) }, customdata: shares.map(d => fmt(d.v)),
+    text: shares.map(d => `${(100 * d.v / tot).toFixed(0)}%`), textposition: "outside", cliponaxis: false, textfont: { color: T.ink2, size: 11 },
+    hovertemplate: "%{y}: %{x:.1f}% · %{customdata} " + U() + "/yr<extra></extra>" }],
+    baseLayout({ hovermode: "closest", margin: { l: 124, r: 34, t: 4, b: 22 },
+      xaxis: { ticksuffix: "%", gridcolor: T.line, tickfont: { color: T.ink2, size: 10 }, fixedrange: true },
+      yaxis: { autorange: "reversed", tickfont: { color: T.ink, size: 11 }, fixedrange: true, ticklabelstandoff: 4 } }), PC);
+  document.getElementById("say-lc").innerHTML = shares.length
+    ? `<b>${(100 * shares[0].v / tot).toFixed(0)}%</b> ${esc(GSHORT[shares[0].g].toLowerCase())}${shares[1] ? `, <b>${(100 * shares[1].v / tot).toFixed(0)}%</b> ${esc(GSHORT[shares[1].g].toLowerCase())}` : ""}.` : "No fire recorded.";
+
+  // 5. when fires burn (carbon)
+  const months = ["J", "F", "M", "A", "M", "J", "J", "A", "S", "O", "N", "D"], mNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  const mtr = GROUP_ORDER.map(g => ({ type: "bar", x: mNames, y: sumClasses(ent.month, GROUPS[g].classes, 12), marker: { color: T.group[g], line: { color: T.surface, width: 0.6 } }, hovertemplate: `${GSHORT[g]}: %{y:,.2f}<extra></extra>` })).filter(t => t.y.some(v => v > 0));
+  const lay5 = baseLayout({ barmode: "stack", bargap: 0.1, margin: { l: 38, r: 4, t: 4, b: 22 } });
+  lay5.xaxis.tickvals = mNames; lay5.xaxis.ticktext = months;
+  Plotly.react("c-season", mtr, lay5, PC);
+  const mt = mNames.map((_, i) => mtr.reduce((s, t) => s + t.y[i], 0)), peak = mt.indexOf(Math.max(...mt));
+  const top3 = [...mt.keys()].sort((x, y) => mt[y] - mt[x]).slice(0, 3).reduce((s, i) => s + mt[i], 0);
+  document.getElementById("say-season").innerHTML = mt.some(v => v > 0) ? `Peak <b>${mNames[peak]}</b>; top 3 months hold <b>${(100 * top3 / mt.reduce((x, y) => x + y, 0)).toFixed(0)}%</b>.` : "";
+
+  renderRank();
+}
+
+// Forest lines. A new area draws each line from left to right, then the dashed trend lines
+// fade in. With a map year picked (or during Play), the line runs up to that year, a dot marks
+// it, and the rest of the record waits as a faint line ahead.
+function drawForestLines(list, fresh) {
+  const id = "c-forest", yr = S.year === "mean" ? null : S.year, tok = ++lineAnim;
+  const x0 = Math.max(S.from, YC[0]), x1 = S.to;
+  const ymax = Math.max(...list.flatMap(([s]) => s.vals)) || 1;
+  const traces = [], bright = [], dash = [];
+  list.forEach(([s, t, cl, l]) => {
+    const upto = yr ? s.years.filter(y => y <= yr).length : s.years.length;
+    traces.push({ type: "scatter", mode: "lines", x: s.years, y: s.vals, line: { color: cl, width: 1.4 }, opacity: yr ? 0.22 : 0, hoverinfo: "skip" });
+    bright.push(traces.length);
+    traces.push({ type: "scatter", mode: "lines", x: s.years.slice(0, upto), y: s.vals.slice(0, upto), line: { color: cl, width: 2.2, shape: "spline", smoothing: 0.4 }, hovertemplate: `${l}: %{y:,.2f}<extra></extra>` });
+    traces.push({ type: "scatter", mode: "markers", x: yr && upto ? [s.years[upto - 1]] : [], y: yr && upto ? [s.vals[upto - 1]] : [], marker: { size: 9, color: cl, line: { color: T.surface, width: 2 } }, hoverinfo: "skip" });
+    dash.push(traces.length);
+    traces.push({ type: "scatter", mode: "lines", x: [x0, x1], y: isFinite(t.slope) ? [t.b + t.slope * x0, t.b + t.slope * x1] : [null, null],
+      line: { color: cl, width: 1.2, dash: "dash" }, opacity: fresh ? 0 : 1, hoverinfo: "skip" });
+  });
+  // fixed axes, so nothing rescales while the lines grow
+  const lay = baseLayout({ shapes: shapesFor(YC), transition: undefined });
+  lay.xaxis.range = [YC[0] - 0.5, YC[YC.length - 1] + 0.5];
+  lay.yaxis.range = [0, ymax * 1.08];
+  if (!fresh) { Plotly.react(id, traces, lay, PC); return; }
+  const full = bright.map(i => ({ x: traces[i].x, y: traces[i].y }));
+  bright.forEach(i => { traces[i].x = traces[i].x.slice(0, 1); traces[i].y = traces[i].y.slice(0, 1); });
+  Plotly.react(id, traces, lay, PC);
+  const n = Math.max(...full.map(f => f.x.length)), dur = 900, t0 = performance.now();
+  const step = now => {
+    if (tok !== lineAnim) return;                      // a newer draw took over
+    const k = Math.min(1, (now - t0) / dur), m = Math.max(1, Math.ceil(d3.easeCubicOut(k) * n));
+    Plotly.restyle(id, { x: full.map(f => f.x.slice(0, m)), y: full.map(f => f.y.slice(0, m)) }, bright);
+    if (k < 1) return requestAnimationFrame(step);
+    const f0 = performance.now();                      // then fade the dashed trend lines in
+    const fade = t => {
+      if (tok !== lineAnim) return;
+      const q = Math.min(1, (t - f0) / 350);
+      Plotly.restyle(id, { opacity: q }, dash);
+      if (q < 1) requestAnimationFrame(fade);
+    };
+    requestAnimationFrame(fade);
+  };
+  requestAnimationFrame(step);
+}
+
+function renderRank() {
+  const a = S.area;
+  let pool, title;
+  if (a.kind === "country") {
+    const reg = REGION_OF_COUNTRY[a.id];
+    pool = META.countries.filter(c => reg ? REGION_OF_COUNTRY[c.iso3] === reg : true).map(c => c.iso3);
+    title = reg ? `Countries in ${META.regions.find(r => r.code === reg).name}` : "Largest emitters";
+  } else if (a.kind === "region") {
+    pool = META.countries.filter(c => REGION_OF_COUNTRY[c.iso3] === a.id).map(c => c.iso3);
+    title = `Largest emitters in ${nameOf(a)}`;
+  } else { pool = META.countries.map(c => c.iso3); title = "Largest emitting countries"; }
+  const rows = pool.map(id => ({ id, st: stat(SERIES.countries[id]) })).filter(r => r.st.mean > 0).sort((x, y) => y.st.mean - x.st.mean);
+  const top = rows.slice(0, 12);
+  if (a.kind === "country" && !top.find(r => r.id === a.id)) { const me = rows.find(r => r.id === a.id); if (me) top.push(me); }
+  const cname = id => short(META.countries.find(c => c.iso3 === id).name);
+  const color = r => r.id === a.id ? T.accent : !r.st.sig || !isFinite(r.st.pct) ? T.total : r.st.pct > 0 ? T.div[4] : T.div[0];
+  document.getElementById("rank-title").textContent = title;
+  Plotly.react("c-rank", [{ type: "bar", orientation: "h", x: top.map(r => r.st.mean), y: top.map(r => cname(r.id)), customdata: top.map(r => [r.id, pct(r.st.pct), r.st.sig ? "significant" : "not significant"]),
+    marker: { color: top.map(color) }, hovertemplate: "%{y}: <b>%{x:,.1f}</b> " + U() + "/yr · trend %{customdata[1]}/yr (%{customdata[2]})<extra></extra>" }],
+    baseLayout({ hovermode: "closest", margin: { l: 130, r: 12, t: 4, b: 24 },
+      xaxis: { gridcolor: T.line, tickfont: { color: T.ink2, size: 11 }, fixedrange: true },
+      yaxis: { autorange: "reversed", tickfont: { color: T.ink, size: 12 }, fixedrange: true, automargin: true } }), PC);
+  const el = document.getElementById("c-rank");
+  if (el.removeAllListeners) el.removeAllListeners("plotly_click");
+  el.on("plotly_click", ev => setArea({ kind: "country", id: ev.points[0].customdata[0] }));
+  const rank = a.kind === "country" ? rows.findIndex(r => r.id === a.id) + 1 : 0;
+  const key = `Colour: <span class="up-t">rising</span>, <span class="down-t">falling</span>, grey no clear trend.`;
+  document.getElementById("say-rank").innerHTML = a.kind === "country" && rank
+    ? `${esc(short(nameOf(a)))} ranks <b>#${rank}</b> of ${rows.length}. ${key}` : `Top ${Math.min(12, rows.length)} of ${rows.length}. ${key}`;
+}
+
+// =======================================================================================
+// map: geometry
+// =======================================================================================
+let proj, path, zoom, W = 800, H = 600, ZT = d3.zoomIdentity;
+const base = d3.select("#base"), over = d3.select("#over");
+let gBase, gOver, RECT25 = null, RECT1 = null, CENTER = {};
+function rewind(f) {
+  const fix = r => { if (d3.geoArea({ type: "Polygon", coordinates: r }) > 2 * Math.PI) r.forEach(x => x.reverse()); return r; };
+  const g = f.geometry;
+  if (g.type === "Polygon") g.coordinates = fix(g.coordinates);
+  else if (g.type === "MultiPolygon") g.coordinates = g.coordinates.map(fix);
+  return f;
+}
+function mainCentroid(f) {
+  // centroid of the largest part, so France sits in France and not in the Atlantic
+  const g = f.geometry;
+  if (g.type !== "MultiPolygon") return d3.geoCentroid(f);
+  let best = null, ba = -1;
+  g.coordinates.forEach(c => { const p = { type: "Polygon", coordinates: c }, a = d3.geoArea(p); if (a > ba) { ba = a; best = p; } });
+  return d3.geoCentroid(best);
+}
+function buildMap() {
+  gBase = base.append("g");
+  ["sphere", "grat", "landg"].forEach(c => gBase.append("g").attr("class", c));
+  gOver = over.append("g");
+  ["units", "circ", "selg"].forEach(c => gOver.append("g").attr("class", c));
+  zoom = d3.zoom().scaleExtent([1, 16]).on("zoom", e => {
+    ZT = e.transform;
+    gBase.attr("transform", ZT); gOver.attr("transform", ZT);
+    gOver.selectAll("circle.tot").attr("r", d => d.r / ZT.k);
+    scheduleRepaint();
+  });
+  over.call(zoom).on("dblclick.zoom", null);
+  document.getElementById("zin").onclick = () => over.transition().duration(300).call(zoom.scaleBy, 1.6);
+  document.getElementById("zout").onclick = () => over.transition().duration(300).call(zoom.scaleBy, 1 / 1.6);
+  document.getElementById("zfit").onclick = () => over.transition().duration(450).call(zoom.transform, d3.zoomIdentity);
+  over.on("mousemove.cell", cellTip).on("mouseleave.cell", hideTip);
+  new ResizeObserver(fit).observe(document.getElementById("stage"));
+  fit();
+}
+function fit() {
+  const st = document.getElementById("stage");
+  W = st.clientWidth; H = st.clientHeight;
+  if (!W || !H) return;
+  base.attr("viewBox", `0 0 ${W} ${H}`); over.attr("viewBox", `0 0 ${W} ${H}`);
+  // Robinson, framed to lon -150..172 and lat -58..84, the same frame as the paper figures
+  const frame = [];
+  for (let lo = -150; lo <= 172; lo += 2) frame.push([lo, -58], [lo, 84], [lo, 0]);
+  for (let la = -58; la <= 84; la += 2) frame.push([-150, la], [172, la]);
+  proj = d3.geoRobinson().rotate([-11, 0]).fitExtent([[6, 6], [W - 6, H - 6]], { type: "MultiPoint", coordinates: frame });
+  path = d3.geoPath(proj);
+  RECT25 = RECT1 = null;
+  const dpr = window.devicePixelRatio || 1;
+  ["ga", "gb"].forEach(id => { const c = document.getElementById(id); c.width = Math.round(W * dpr); c.height = Math.round(H * dpr); });
+  gBase.select(".sphere").selectAll("path").data([{ type: "Sphere" }]).join("path").attr("class", "sphere").attr("d", path);
+  gBase.select(".grat").selectAll("path").data([d3.geoGraticule().step([30, 30])()]).join("path").attr("class", "grat").attr("d", path);
+  gBase.select(".landg").selectAll("path").data(GEO.features).join("path").attr("class", "land").attr("d", path);
+  drawOverlay();
+  render(false);
+}
+function rectOf(res, i) {
+  // projected box of one grid cell, cached; Robinson meridians curve, so take all four corners
+  const n = res === 1 ? 360 : 1440, step = res === 1 ? 1 : 0.25;
+  let R = res === 1 ? RECT1 : RECT25;
+  if (!R) { R = new Float32Array((res === 1 ? 64800 : 1036800) * 4).fill(NaN); if (res === 1) RECT1 = R; else RECT25 = R; }
+  const o = 4 * i;
+  if (Number.isNaN(R[o])) {
+    const r = Math.floor(i / n), c = i % n, la = 90 - r * step, lo = -180 + c * step;
+    const p = [proj([lo, la]), proj([lo + step, la]), proj([lo, la - step]), proj([lo + step, la - step])];
+    const xs = p.map(q => q[0]), ys = p.map(q => q[1]);
+    R[o] = Math.min(...xs); R[o + 1] = Math.min(...ys); R[o + 2] = Math.max(...xs) - R[o]; R[o + 3] = Math.max(...ys) - R[o + 1];
+  }
+  return [R, o];
+}
+
+// =======================================================================================
+// map: grid data (lossless PNGs decoded to bytes)
+// =======================================================================================
+const PNG = new Map();
+function loadPng(url) {
+  if (PNG.has(url)) return PNG.get(url);
+  const p = new Promise((res, rej) => {
+    const img = new Image();
+    img.onload = () => {
+      const c = document.createElement("canvas"); c.width = img.width; c.height = img.height;
+      const x = c.getContext("2d", { willReadFrequently: true }); x.drawImage(img, 0, 0);
+      const d = x.getImageData(0, 0, img.width, img.height).data, n = img.width * img.height;
+      const r = new Uint8Array(n), g = new Uint8Array(n), b = new Uint8Array(n);
+      for (let i = 0; i < n; i++) { r[i] = d[4 * i]; g[i] = d[4 * i + 1]; b[i] = d[4 * i + 2]; }
+      res({ r, g, b, w: img.width, h: img.height });
+    };
+    img.onerror = () => rej(new Error(url));
+    img.src = url;
+  });
+  PNG.set(url, p);
+  return p;
+}
+let DEC = null;                      // byte -> Tg C
+function dec(b) { if (!DEC) { DEC = new Float32Array(256); for (let i = 1; i < 256; i++) DEC[i] = Math.exp(Math.log(GS.lo) + (i - 1) / 254 * (Math.log(GS.hi) - Math.log(GS.lo))); } return DEC[b]; }
+const needsB = k => ["savanna", "cropland", "peat", "other"].includes(k);
+async function gridFor(key) {
+  const a = await loadPng(`data/grid/${key}_a.png`), b = needsB(S.type) ? await loadPng(`data/grid/${key}_b.png`) : null;
+  return { a, b };
+}
+function cellValue(G, i, k = S.type) {
+  const { a, b } = G;
+  switch (k) {
+    case "all": return dec(a.r[i]);
+    case "forest_clean": return dec(a.g[i]);
+    case "deforestation": return dec(a.b[i]);
+    case "forest_overall": return dec(a.g[i]) + dec(a.b[i]);
+    case "savanna": return dec(b.r[i]);
+    case "cropland": return dec(b.g[i]);
+    case "peat": return dec(b.b[i]);
+    case "other": return Math.max(0, dec(a.r[i]) - dec(a.g[i]) - dec(a.b[i]) - dec(b.r[i]) - dec(b.g[i]) - dec(b.b[i]));
+  }
+  return 0;
+}
+const SCALE = new Map();             // fire type -> [lo, hi] from the mean grid, fixed across years
+function scaleFor(M) {
+  if (SCALE.has(S.type)) return SCALE.get(S.type);
+  const v = [];
+  for (let i = 0; i < 1036800; i += 3) { const x = cellValue(M, i); if (x > 0) v.push(x); }
+  v.sort((x, y) => x - y);
+  const hi = v[Math.floor(v.length * 0.995)] || 1, lo = Math.max(v[Math.floor(v.length * 0.08)] || hi / 1e4, hi / 1e4);
+  SCALE.set(S.type, [lo, hi]);
+  return [lo, hi];
+}
+
+// =======================================================================================
+// map: painting, with a cross-fade between frames
+// =======================================================================================
+let FRAME = null, active = "ga", paintTok = 0, repaintRaf = 0;
+async function prepare() {
+  // everything the current view needs, loaded before we paint
+  const yearKey = S.year === "mean" ? "mean" : String(S.year);
+  if (S.view === "amount") return { view: "amount", M: await gridFor("mean"), Y: await gridFor(yearKey) };
+  if (S.view === "unusual") return { view: "unusual", M: await gridFor("mean"), Y: await gridFor(yearKey) };
+  if (S.view === "trend") return { view: "trend", Tr: await loadPng(`data/trend/${S.type}.png`) };
+  return { view: "lc", L: await loadPng(`data/lc/lc_${LCS.years.includes(S.year) ? S.year : "mean"}.png`) };
+}
+async function render(fade = true) {
+  if (!proj) return;
+  const tok = ++paintTok;
+  const slow = setTimeout(() => { document.getElementById("spin").hidden = false; }, 250);
+  let fr;
+  try { fr = await prepare(); } catch (e) { clearTimeout(slow); return; }
+  clearTimeout(slow); document.getElementById("spin").hidden = true;
+  if (tok !== paintTok) return;                    // a newer request took over
+  FRAME = fr;
+  const next = fade && !reduceMotion ? (active === "ga" ? "gb" : "ga") : active;
+  paint(document.getElementById(next));
+  if (next !== active) {
+    document.getElementById(next).classList.add("on");
+    document.getElementById(active).classList.remove("on");
+    active = next;
+  } else document.getElementById(active).classList.add("on");
+  drawLegend(); drawTitle();
+}
+function scheduleRepaint() { cancelAnimationFrame(repaintRaf); repaintRaf = requestAnimationFrame(() => { if (FRAME) paint(document.getElementById(active)); }); }
+function paint(cv) {
+  const ctx = cv.getContext("2d"), dpr = cv.width / W;
+  ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.clearRect(0, 0, cv.width, cv.height);
+  if (!FRAME) return;
+  ctx.setTransform(dpr * ZT.k, 0, 0, dpr * ZT.k, dpr * ZT.x, dpr * ZT.y);
+  const [vx0, vy0] = ZT.invert([0, 0]), [vx1, vy1] = ZT.invert([W, H]), pad = 0.35 / ZT.k;
+  const cell = (res, i, colour) => {
+    const [R, o] = rectOf(res, i), x = R[o], y = R[o + 1];
+    if (x > vx1 || y > vy1 || x + R[o + 2] < vx0 || y + R[o + 3] < vy0) return;
+    ctx.fillStyle = colour; ctx.fillRect(x - pad, y - pad, R[o + 2] + 2 * pad, R[o + 3] + 2 * pad);
+  };
+  const N = 1036800;
+  if (FRAME.view === "amount") {
+    const [lo, hi] = scaleFor(FRAME.M), L0 = Math.log(lo), LS = 255 / (Math.log(hi) - L0);
+    for (let i = 0; i < N; i++) {
+      if (!FRAME.Y.a.r[i]) continue;
+      const v = cellValue(FRAME.Y, i);
+      if (!(v >= lo * 0.5)) continue;
+      cell(0.25, i, T.seqLUT[Math.max(0, Math.min(255, Math.round((Math.log(v) - L0) * LS)))]);
+    }
+  } else if (FRAME.view === "unusual") {
+    const [lo, hi] = scaleFor(FRAME.M), lim = hi * 0.4, c = lim / 40, D = Math.log1p(lim / c);
+    for (let i = 0; i < N; i++) {
+      if (!FRAME.Y.a.r[i] && !FRAME.M.a.r[i]) continue;
+      const y = cellValue(FRAME.Y, i), m = cellValue(FRAME.M, i);
+      if (Math.max(y, m) < lo) continue;
+      const d = y - m, t = Math.sign(d) * Math.log1p(Math.abs(d) / c) / D;
+      if (Math.abs(t) < 0.06) continue;                          // about normal: leave the land showing
+      cell(0.25, i, T.divLUT[Math.max(0, Math.min(255, Math.round((t + 1) * 127.5)))]);
+    }
+  } else if (FRAME.view === "trend") {
+    const { r, g } = FRAME.Tr, cap = GS.trend.cap, show = 10;
+    for (let i = 0; i < 64800; i++) {
+      if (!r[i]) continue;
+      const p = (r[i] - 1) / 254 * 2 * cap - cap, idx = Math.max(0, Math.min(255, Math.round((p + show) / (2 * show) * 255)));
+      cell(1, i, g[i] ? T.divLUT[idx] : T.divWash[idx]);
+    }
+  } else {
+    const { r, g } = FRAME.L;
+    for (let i = 0; i < N; i++) { if (r[i]) cell(0.25, i, T.lcLUT[r[i] - 1][g[i]]); }
+  }
+  // thin country borders on top of the colour
+  const gp = d3.geoPath(proj, ctx);
+  ctx.beginPath(); GEO.features.forEach(f => gp(f));
+  ctx.strokeStyle = T.border; ctx.globalAlpha = 0.85; ctx.lineWidth = 0.6 / ZT.k; ctx.stroke(); ctx.globalAlpha = 1;
+}
+
+// =======================================================================================
+// map: clickable outlines, totals as circles, selection
+// =======================================================================================
+function unitFeatures() { return S.unit === "biome" ? REGIONS.features : GEO.features; }
+function unitId(f) { return S.unit === "biome" ? f.properties.code : f.properties.iso3; }
+function unitEnt(id) { return S.unit === "biome" ? SERIES.regions[id] : SERIES.countries[id]; }
+function unitName(id) { return S.unit === "biome" ? META.regions.find(r => r.code === id)?.name : short(META.countries.find(c => c.iso3 === id)?.name || id); }
+function drawOverlay() {
+  if (!path) return;
+  const feats = unitFeatures();
+  gOver.select(".units").selectAll("path").data(feats, unitId).join("path").attr("class", "unit").attr("d", path)
+    .on("mousemove", (ev, f) => { hoverUnit = unitId(f); cellTip(ev); })
+    .on("mouseleave", () => { hoverUnit = null; })
+    .on("click", (ev, f) => { const id = unitId(f); if (unitEnt(id)) setArea({ kind: S.unit === "biome" ? "region" : "country", id }); });
+  drawCircles(); drawSelection();
+}
+function drawCircles() {
+  const g = gOver.select(".circ");
+  if (!S.circles) { g.selectAll("circle").remove(); return; }
+  const feats = unitFeatures().filter(f => unitEnt(unitId(f)));
+  // one size scale across all years so the circles change during Play
+  let vmax = 0;
+  feats.forEach(f => { series(unitEnt(unitId(f)), S.type, "C").vals.forEach(v => { if (v > vmax) vmax = v; }); });
+  const rmax = Math.min(W, H) * 0.075;
+  const data = feats.map(f => {
+    const id = unitId(f), v = carbonAt(unitEnt(id));
+    if (!CENTER[id]) CENTER[id] = mainCentroid(f);
+    const p = proj(CENTER[id]);
+    return { id, v, x: p[0], y: p[1], r: v > 0 ? Math.max(1.5, rmax * Math.sqrt(v / vmax)) : 0 };
+  }).filter(d => d.v > 0).sort((a, b) => b.v - a.v);
+  g.selectAll("circle").data(data, d => d.id).join(
+    enter => enter.append("circle").attr("class", "tot").attr("cx", d => d.x).attr("cy", d => d.y).attr("r", 0),
+    upd => upd, exit => exit.transition().duration(300).attr("r", 0).remove())
+    .classed("selc", d => d.id === S.area.id)
+    .on("mousemove", (ev, d) => { hoverUnit = d.id; cellTip(ev); })
+    .on("mouseleave", () => { hoverUnit = null; hideTip(); })
+    .on("click", (ev, d) => setArea({ kind: S.unit === "biome" ? "region" : "country", id: d.id }))
+    .attr("cx", d => d.x).attr("cy", d => d.y)
+    .transition().duration(reduceMotion ? 0 : 600).ease(d3.easeCubicOut).attr("r", d => d.r / ZT.k);
+}
+function drawSelection() {
+  let f = [];
+  if (S.area.kind === "country") f = GEO.features.filter(x => x.properties.iso3 === S.area.id);
+  if (S.area.kind === "region") f = REGIONS.features.filter(x => x.properties.code === S.area.id);
+  gOver.select(".selg").selectAll("path").data(f).join("path").attr("class", "sel").attr("d", path);
+  gOver.selectAll("circle.tot").classed("selc", d => d.id === S.area.id);
+}
+
+// =======================================================================================
+// map: tooltip, legend, title
+// =======================================================================================
+let hoverUnit = null;
+function cellTip(ev) {
+  const [px, py] = ZT.invert(d3.pointer(ev, over.node()));
+  const ll = proj.invert([px, py]);
+  const lines = [];
+  if (hoverUnit && unitEnt(hoverUnit)) {
+    const e = unitEnt(hoverUnit), v = carbonAt(e), s = stat(e, S.type, "C");
+    lines.push(`<b>${esc(unitName(hoverUnit))}</b>${fmt(v, "C")} Tg C ${S.year === "mean" ? "/yr" : "in " + S.year} · trend ${pct(s.pct)}/yr${s.sig ? "*" : ""}`);
+  }
+  if (FRAME && ll && Math.abs(ll[1]) <= 90) {
+    const r25 = Math.min(719, Math.floor((90 - ll[1]) * 4)) * 1440 + Math.min(1439, Math.floor((ll[0] + 180) * 4));
+    const r1 = Math.min(179, Math.floor(90 - ll[1])) * 360 + Math.min(359, Math.floor(ll[0] + 180));
+    let t = "";
+    if (FRAME.view === "amount") { const v = cellValue(FRAME.Y, r25); if (v > 0) t = `This cell: ${fmtMass(v)}`; }
+    else if (FRAME.view === "unusual") { const y = cellValue(FRAME.Y, r25), m = cellValue(FRAME.M, r25); if (y > 0 || m > 0) t = `This cell: ${fmtMass(y)} vs mean ${fmtMass(m)}`; }
+    else if (FRAME.view === "trend") { const R = FRAME.Tr; if (R.r[r1]) t = `This 1° cell: ${pct((R.r[r1] - 1) / 254 * 2 * GS.trend.cap - GS.trend.cap)}/yr${R.g[r1] ? " (significant)" : " (not significant)"}`; }
+    else { const L = FRAME.L; if (L.r[r25]) t = `This cell: mostly ${esc(GSHORT[GROUP_ORDER[L.r[r25] - 1]].toLowerCase())}`; }
+    if (t) lines.push(`<span class="m">${t}</span>`);
+  }
+  if (!lines.length) return hideTip();
+  const tp = document.getElementById("tip"), box = document.getElementById("stage").getBoundingClientRect();
+  tp.innerHTML = lines.join("<br>"); tp.hidden = false;
+  tp.style.left = Math.min(ev.clientX - box.left + 14, box.width - tp.offsetWidth - 6) + "px";
+  tp.style.top = Math.max(ev.clientY - box.top - tp.offsetHeight - 12, 6) + "px";
+}
+function hideTip() { document.getElementById("tip").hidden = true; }
+function drawLegend() {
+  const el = document.getElementById("legend"), grad = lut => `linear-gradient(90deg,${d3.range(0, 256, 25).map(i => lut[i]).join(",")})`;
+  const tname = typeDef(S.type).short.toLowerCase();
+  if (S.view === "amount" && FRAME?.M) {
+    const [lo, hi] = scaleFor(FRAME.M);
+    el.innerHTML = `<div>Fire carbon per 0.25&deg; cell, ${S.year === "mean" ? "per year" : S.year} (log)</div><div class="bar" style="background:${grad(T.seqLUT)}"></div>
+      <div class="ticks"><span>${fmtMass(lo)}</span><span>${fmtMass(Math.sqrt(lo * hi))}</span><span>${fmtMass(hi)}</span></div><div class="sub">${esc(typeDef(S.type).short)}</div>`;
+  } else if (S.view === "unusual") {
+    el.innerHTML = `<div>${S.year} against the 2002&ndash;2025 mean, per cell</div><div class="bar" style="background:${grad(T.divLUT)}"></div>
+      <div class="ticks"><span>less fire</span><span>normal</span><span>more fire</span></div><div class="sub">${esc(typeDef(S.type).short)} · near-normal cells left blank</div>`;
+  } else if (S.view === "trend") {
+    el.innerHTML = `<div>Trend per 1&deg; cell, 2002&ndash;2025 (% of mean per year)</div><div class="bar" style="background:${grad(T.divLUT)}"></div>
+      <div class="ticks"><span>−10%</span><span>0</span><span>+10%</span></div><div class="sub">Strong colour: significant (p &lt; 0.05) · faded: could be chance</div>`;
+  } else {
+    el.innerHTML = `<div>Land cover that burns most in each 0.25&deg; cell</div><div class="cats">${GROUP_ORDER.map(g => `<span><i style="background:var(--g-${g})"></i>${GSHORT[g]}</span>`).join("")}</div><div class="sub">Stronger colour: more carbon</div>`;
+  }
+}
+function drawTitle() {
+  document.getElementById("ov-t").textContent = `${VIEW_NAME[S.view]}${S.view === "lc" ? "" : " · " + typeDef(S.type).short}`;
+  const y = S.view === "trend" ? "2002–25" : S.year === "mean" ? "Average" : String(S.year);
+  document.getElementById("ov-y").textContent = y;
+}
+
+// =======================================================================================
+// state changes
+// =======================================================================================
+function setArea(area) {
+  S.area = area;
+  document.getElementById("area").value = `${area.kind}:${area.id}`;
+  // the chart column keeps its scroll position; only the content changes
+  renderWidgets(); drawSelection();
+}
+let timer = null;
+function setYear(y) {
+  S.year = y;
+  document.getElementById("avg").setAttribute("aria-pressed", y === "mean");
+  document.querySelector(".track").classList.toggle("idle", y === "mean");
+  if (y !== "mean") document.getElementById("year").value = y;
+  render(true); drawCircles(); drawTitle(); renderWidgets();
+  // fetch the next year early so Play stays smooth
+  if (S.playing && y !== "mean" && y < YC[YC.length - 1] && (S.view === "amount" || S.view === "unusual")) gridFor(String(y + 1)).catch(() => {});
+}
+function firstMapYear() { return YC[0]; }
+function setPlaying(on) {
+  S.playing = on;
+  document.getElementById("play-i").setAttribute("d", on ? "M2.5 1h2.5v10H2.5zM7 1h2.5v10H7z" : "M2.5 1v10l8-5z");
+  document.getElementById("play").setAttribute("aria-label", on ? "Pause" : "Play years");
+  clearInterval(timer);
+  if (!on) return;
+  const last = YC[YC.length - 1];
+  if (S.year === "mean" || S.year >= last) setYear(firstMapYear());
+  timer = setInterval(() => { if (S.year >= last) return setPlaying(false); setYear(S.year + 1); }, 1100);
+}
+function setView(v) {
+  S.view = v;
+  if (v === "unusual" && S.year === "mean") S.year = YC[YC.length - 1];
+  if (v === "trend") setPlaying(false);
+  syncButtons(); render(true); drawTitle();
+}
+function syncButtons() {
+  document.querySelectorAll("[data-view]").forEach(b => b.setAttribute("aria-pressed", b.dataset.view === S.view));
+  document.querySelectorAll("[data-unit]").forEach(b => b.setAttribute("aria-pressed", b.dataset.unit === S.unit));
+  document.getElementById("circles").setAttribute("aria-pressed", S.circles);
+  document.getElementById("m-C").setAttribute("aria-pressed", S.metric === "C");
+  document.getElementById("m-BA").setAttribute("aria-pressed", S.metric === "BA");
+  document.getElementById("timeline").classList.toggle("off", S.view === "trend");
+  document.getElementById("avg").disabled = S.view === "unusual";
+  document.getElementById("avg").setAttribute("aria-pressed", S.year === "mean");
+  document.querySelector(".track").classList.toggle("idle", S.year === "mean");
+  if (S.year !== "mean") document.getElementById("year").value = S.year;
+  const classOnly = S.metric === "BA" || S.type !== "all";
+  document.querySelectorAll("#from option, #to option").forEach(o => { o.disabled = classOnly && +o.value < YC[0]; });
+  if (classOnly && S.from < YC[0]) S.from = YC[0];
+  document.getElementById("from").value = S.from; document.getElementById("to").value = S.to;
+}
+
+// =======================================================================================
+// boot
+// =======================================================================================
+async function boot() {
+  const get = async f => { const r = await fetch(f); if (!r.ok) throw new Error(`${f}: ${r.status}`); return r.json(); };
+  try {
+    [META, SERIES, GEO, REGIONS, GS, LCS] = await Promise.all(["data/meta.json", "data/series.json", "data/countries.geojson",
+      "data/regions.geojson", "data/grid/scale.json", "data/lc/scale.json"].map(get));
+  } catch (e) { document.getElementById("loading").textContent = `The data did not load (${e.message}). Open the page through a web server.`; return; }
+  YT = META.years_total; YC = META.years_class;
+  GROUPS = Object.fromEntries(META.groups.map(g => [g.key, g]));
+  GEO.features = GEO.features.filter(f => f.properties.iso3 !== "ATA").map(rewind);
+  REGIONS.features = REGIONS.features.map(rewind);
+  GEO.features.forEach(f => {
+    const c = mainCentroid(f);
+    const r = REGIONS.features.find(R => d3.geoContains(R, c));
+    if (r) REGION_OF_COUNTRY[f.properties.iso3] = r.properties.code;
+  });
+  readTheme();
+
+  const area = document.getElementById("area");
+  const cs = [...META.countries].sort((a, b) => a.name.localeCompare(b.name));
+  area.innerHTML = `<option value="world:WORLD">World</option>
+    <optgroup label="GFED biome regions">${META.regions.map(r => `<option value="region:${r.code}">${esc(r.name)}</option>`).join("")}</optgroup>
+    <optgroup label="Countries">${cs.map(c => `<option value="country:${c.iso3}">${esc(c.name)}</option>`).join("")}</optgroup>`;
+  area.onchange = () => { const [kind, id] = area.value.split(":"); setArea({ kind, id }); };
+  document.getElementById("back").onclick = () => setArea({ kind: "world", id: "WORLD" });
+  const type = document.getElementById("type");
+  type.innerHTML = TYPES.map(t => `<option value="${t.key}">${esc(t.name)}</option>`).join("");
+  type.onchange = () => { S.type = type.value; syncButtons(); render(true); drawCircles(); drawTitle(); renderWidgets(); };
+  const opts = YT.map(y => `<option value="${y}">${y}</option>`).join("");
+  const from = document.getElementById("from"), to = document.getElementById("to");
+  from.innerHTML = opts; to.innerHTML = opts;
+  const periodChanged = () => { syncButtons(); renderWidgets(); drawCircles(); };
+  from.onchange = () => { S.from = +from.value; if (S.to - S.from < 4) S.to = Math.min(S.from + 4, YT[YT.length - 1]); periodChanged(); };
+  to.onchange = () => { S.to = +to.value; if (S.to - S.from < 4) S.from = Math.max(S.to - 4, YT[0]); periodChanged(); };
+  document.getElementById("m-C").onclick = () => { S.metric = "C"; syncButtons(); renderWidgets(); };
+  document.getElementById("m-BA").onclick = () => { S.metric = "BA"; syncButtons(); renderWidgets(); };
+  document.querySelectorAll("[data-view]").forEach(b => { b.onclick = () => setView(b.dataset.view); });
+  document.querySelectorAll("[data-unit]").forEach(b => { b.onclick = () => { S.unit = b.dataset.unit; syncButtons(); drawOverlay(); }; });
+  document.getElementById("circles").onclick = () => { S.circles = !S.circles; syncButtons(); drawCircles(); };
+  document.getElementById("play").onclick = () => setPlaying(!S.playing);
+  document.getElementById("avg").onclick = () => { setPlaying(false); setYear("mean"); };
+  const slider = document.getElementById("year");
+  slider.min = YC[0]; slider.max = YC[YC.length - 1];
+  slider.oninput = e => { setPlaying(false); setYear(+e.target.value); };
+  document.getElementById("ticks").innerHTML = [2002, 2005, 2010, 2015, 2020, 2025].map(y => `<span>${y}</span>`).join("");
+  // #amount, #unusual, #trend, #landcover open that map view
+  const HV = { amount: "amount", unusual: "unusual", trend: "trend", landcover: "lc" };
+  if (HV[location.hash.slice(1)]) { S.view = HV[location.hash.slice(1)]; if (S.view === "unusual") S.year = YC[YC.length - 1]; }
+
+  document.getElementById("loading").remove();
+  syncButtons();
+  buildMap();
+  renderWidgets();
+  drawTitle();
+  // follow the browser's light / dark setting, and the viewer's own theme switch
+  const retheme = () => { readTheme(); scheduleRepaint(); drawLegend(); renderWidgets(); };
+  matchMedia("(prefers-color-scheme: dark)").addEventListener("change", retheme);
+  new MutationObserver(retheme).observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+}
+boot();
+</script>
+</body>
+</html>

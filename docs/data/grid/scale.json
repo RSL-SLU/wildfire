@@ -1,0 +1,83 @@
+{
+ "years": [
+  2002,
+  2003,
+  2004,
+  2005,
+  2006,
+  2007,
+  2008,
+  2009,
+  2010,
+  2011,
+  2012,
+  2013,
+  2014,
+  2015,
+  2016,
+  2017,
+  2018,
+  2019,
+  2020,
+  2021,
+  2022,
+  2023,
+  2024,
+  2025
+ ],
+ "lo": 1e-05,
+ "hi": 8.0,
+ "unit": "Tg C per 0.25 deg cell per year",
+ "a": [
+  "all",
+  "forest_clean",
+  "deforestation"
+ ],
+ "b": [
+  "savanna",
+  "cropland",
+  "peat"
+ ],
+ "trend": {
+  "cap": 15.0,
+  "period": [
+   2002,
+   2025
+  ],
+  "min_mean_1deg_TgC": 0.005,
+  "cells": {
+   "all": {
+    "with_data": 10315,
+    "significant": 3098
+   },
+   "forest_overall": {
+    "with_data": 5229,
+    "significant": 1204
+   },
+   "forest_clean": {
+    "with_data": 5171,
+    "significant": 1248
+   },
+   "deforestation": {
+    "with_data": 1019,
+    "significant": 247
+   },
+   "savanna": {
+    "with_data": 6538,
+    "significant": 2161
+   },
+   "cropland": {
+    "with_data": 2767,
+    "significant": 1549
+   },
+   "peat": {
+    "with_data": 1441,
+    "significant": 362
+   },
+   "other": {
+    "with_data": 954,
+    "significant": 223
+   }
+  }
+ }
+}

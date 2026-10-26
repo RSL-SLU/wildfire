@@ -1,0 +1,6 @@
+pipeline/_grids/
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+*.nc
+.DS_Store

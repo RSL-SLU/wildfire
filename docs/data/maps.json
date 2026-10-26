@@ -1,0 +1,82 @@
+{
+ "mean": {
+  "all": {
+   "total_TgC": 3398.8866323865586
+  },
+  "forest": {
+   "total_TgC": 588.5967811881414
+  },
+  "deforestation": {
+   "total_TgC": 147.55572550533697
+  },
+  "other": {
+   "total_TgC": 36.68022893487165
+  },
+  "savanna": {
+   "total_TgC": 2399.163611377254
+  },
+  "cropland": {
+   "total_TgC": 124.93630073313379
+  },
+  "peat": {
+   "total_TgC": 101.95398464782235
+  }
+ },
+ "change": {
+  "all": {
+   "net_TgC": 28.318233515584755
+  },
+  "forest_overall": {
+   "net_TgC": 214.030942927452
+  },
+  "forest_clean": {
+   "net_TgC": 238.71760953653853
+  }
+ },
+ "mean_scale": {
+  "type": "log",
+  "vmin": 0.001,
+  "vmax": 10000.0,
+  "stops": [
+   "#fcffa4",
+   "#f9c932",
+   "#f98c0a",
+   "#e35933",
+   "#ba3655",
+   "#88226a",
+   "#550f6d",
+   "#1f0c48",
+   "#000004"
+  ],
+  "unit": "kt C per 0.25\u00b0 cell per year"
+ },
+ "change_scale": {
+  "type": "symlog",
+  "lim": 1000.0,
+  "linthresh": 10.0,
+  "stops": [
+   "#1c5cab",
+   "#5189cd",
+   "#86b6ef",
+   "#b8cfe9",
+   "#e9e7e2",
+   "#ecc0b8",
+   "#ee998d",
+   "#d05e54",
+   "#b3261e"
+  ],
+  "unit": "kt C per 0.25\u00b0 cell per year",
+  "early": [
+   2002,
+   2011
+  ],
+  "late": [
+   2016,
+   2025
+  ]
+ },
+ "period": [
+  2002,
+  2025
+ ]
+}
