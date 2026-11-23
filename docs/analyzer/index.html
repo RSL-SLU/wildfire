@@ -2,7 +2,7 @@
 <html lang="en">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Forest Fire Analyzer</title>
+<title>Forest fire trends by country</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -21,7 +21,7 @@
   --s-ov: #7a5aa6; --s-nd: #2f7d4f;
   --fx-bo: #2a78d6; --fx-tr: #eb6834; --fx-te: #1baf7a; --fx-df: #eda100;
   --managed: #2f7d4f; --unmanaged: #d9822b; --partial: #9fb3a4; --absent: #c9c8c2;
-  --chip: #e8e8e2; --shadow: 0 1px 2px rgba(20,20,20,.06);
+  --chip: #e8e8e2; --shadow: 0 1px 2px rgba(20,20,20,.06); --fall: #d3dde8;
   --font-display: "Archivo", "Arial Narrow", "Helvetica Neue", Arial, sans-serif;
   --font-body: "Public Sans", "Segoe UI", system-ui, -apple-system, sans-serif;
   --font-data: "IBM Plex Mono", ui-monospace, Consolas, monospace;
@@ -36,7 +36,7 @@
   --s-ov: #9a82cf; --s-nd: #3f9d63;
   --fx-bo: #3987e5; --fx-tr: #d95926; --fx-te: #199e70; --fx-df: #c98500;
   --managed: #3f9d63; --unmanaged: #e0913a; --partial: #4e6355; --absent: #45474b;
-  --chip: #26282b; --shadow: none; color-scheme: dark; } }
+  --chip: #26282b; --shadow: none; color-scheme: dark; --fall: #2b3540; } }
 :root[data-theme="dark"] {
   --bg: #111213; --surface: #1a1b1d; --ink: #eceef0; --ink-2: #b9bdc2; --muted: #858a90; --line: #2a2c30;
   --axis: #3b3f44; --accent: #ec8454; --accent-wash: #3a2318;
@@ -46,7 +46,7 @@
   --s-ov: #9a82cf; --s-nd: #3f9d63;
   --fx-bo: #3987e5; --fx-tr: #d95926; --fx-te: #199e70; --fx-df: #c98500;
   --managed: #3f9d63; --unmanaged: #e0913a; --partial: #4e6355; --absent: #45474b;
-  --chip: #26282b; --shadow: none; color-scheme: dark; }
+  --chip: #26282b; --shadow: none; color-scheme: dark; --fall: #2b3540; }
 
 * { box-sizing: border-box; }
 [hidden] { display: none !important; }
@@ -69,7 +69,7 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 .site { position: relative; display: inline-flex; align-items: center; padding: 3px; border-radius: 999px; background: var(--line); isolation: isolate; justify-self: start; max-width: 100%; overflow-x: auto; scrollbar-width: none; }
 .site a { position: relative; z-index: 1; font: 600 13.5px/1 var(--font-body); color: var(--ink-2); text-decoration: none; padding: 0 14px; min-height: 32px; display: inline-flex; align-items: center; border-radius: 999px; white-space: nowrap; transition: color .2s; }
 .site a:hover { color: var(--ink); }
-.site a[aria-current="page"] { color: var(--bg); }
+.site a[aria-current="page"] { color: var(--surface); }
 .site:not(.ready) a[aria-current="page"] { background: var(--accent); }
 .site a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 .site .thumb { position: absolute; z-index: 0; top: 3px; bottom: 3px; left: 0; width: 0; border-radius: 999px; background: var(--accent); transition: transform .26s cubic-bezier(.2, .8, .2, 1), width .26s cubic-bezier(.2, .8, .2, 1); }
@@ -99,8 +99,8 @@ button:focus-visible, summary:focus-visible, th:focus-visible { outline: 2px sol
 
 .band { margin-top: 30px; display: grid; gap: 14px; }
 /* one section per paper goal: a header card with the question and the answer, then its parts */
-.goalsec { margin-top: 64px; display: grid; gap: 18px; scroll-margin-top: 150px; }
-.ghead { display: grid; gap: 14px; padding: 24px 26px; border-radius: var(--r); background: var(--surface); box-shadow: var(--shadow); border-top: 4px solid var(--accent); }
+.goalsec { margin-top: 64px; display: grid; gap: 18px; scroll-margin-top: 270px; }
+.ghead { display: grid; gap: 14px; padding: 24px 26px; border-radius: var(--r); background: var(--surface); box-shadow: var(--shadow); }
 .ghead .gno { font-family: var(--font-display); font-stretch: 80%; font-weight: 760; font-size: 17px; letter-spacing: .02em; color: var(--accent); }
 .ghead .lede { font-size: 18px; color: var(--ink); max-width: 70ch; margin: 0; text-wrap: pretty; }
 .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; }
@@ -124,16 +124,16 @@ button:focus-visible, summary:focus-visible, th:focus-visible { outline: 2px sol
 .donut li .sw { width: 14px; height: 14px; border-radius: 3px; margin: 0; }
 .donut li b { font-family: var(--font-data); font-weight: 500; font-variant-numeric: tabular-nums; }
 .donut li small { grid-column: 2 / -1; color: var(--muted); font-size: 13px; }
-.kpirow { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-top: 12px; }
+.kpirow { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-top: 12px; }
 .kpirow a { color: inherit; text-decoration: none; border-radius: var(--r); display: grid; }
 .kpirow a:hover .panel { box-shadow: 0 0 0 1.5px var(--accent); }
 .kpirow a:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
-@media (max-width: 900px) { .kpirow { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 900px) { .kpirow { grid-template-columns: minmax(0, 1fr); } }
 @media (max-width: 520px) { .kpirow { grid-template-columns: minmax(0, 1fr); } .ghead { padding: 18px 16px; } h2 { font-size: 25px; } .goalsec { scroll-margin-top: 16px; } }
 .bhead { display: grid; gap: 6px; }
 .qrow { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 10px; }
 .goal { font-family: var(--font-data); font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--accent); background: var(--accent-wash); border-radius: 4px; padding: 2px 7px; }
-.draft { font-family: var(--font-data); font-size: 10.5px; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-2); border: 1px dashed var(--axis); border-radius: 4px; padding: 1px 7px; }
+.draft { font-family: var(--font-data); font-size: 12px; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-2); border: 1px dashed var(--axis); border-radius: 4px; padding: 1px 7px; }
 .answer { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 18px; }
 .answer .a { display: inline-flex; align-items: baseline; gap: 8px; font-size: 16px; color: var(--ink-2); }
 .answer .n { font-family: var(--font-display); font-stretch: 75%; font-weight: 760; font-size: 44px; color: var(--ink); line-height: 1; font-variant-numeric: tabular-nums; }
@@ -207,6 +207,28 @@ td .link:hover { color: var(--accent); }
 .facts dt { color: var(--muted); }
 .facts dd { margin: 0; text-align: right; font-family: var(--font-data); font-variant-numeric: tabular-nums; }
 .loading { padding: 40px 0; color: var(--muted); }
+.themebtn { font: 600 13.5px/1 var(--font-body); color: var(--ink-2); background: var(--chip); border: 0; border-radius: 999px; min-height: 38px; padding: 0 16px; cursor: pointer; }
+.themebtn:hover { color: var(--ink); }
+.themebtn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.flow { margin: 0; display: grid; gap: 10px; }
+.flow .fwrap { overflow-x: auto; }
+.flow svg { display: block; width: 100%; height: auto; color: var(--ink-2); }
+.flow figcaption { font-size: 15px; color: var(--ink-2); max-width: 75ch; }
+@media (max-width: 640px) { .flow svg { min-width: 820px; } }
+.vh { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.h2s { font-size: 22px; font-weight: 720; font-stretch: 85%; }
+.setline { font-size: 13px; color: var(--muted); }
+.jump a[aria-current] { background: var(--ink); color: var(--bg); }
+td button.link { font: inherit; background: none; border: 0; padding: 0; text-align: left; }
+td button.link:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+td.empty { font-family: var(--font-body); color: var(--muted); text-align: left; padding: 14px 8px; }
+.reset { font: 600 13.5px var(--font-body); color: var(--ink); background: var(--accent-wash); border: 1px solid var(--accent); border-radius: 999px; padding: 6px 14px; cursor: pointer; }
+.reset:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.find input { font: 14px var(--font-body); color: var(--ink); background: var(--surface); border: 1px solid var(--line); border-radius: 999px; padding: 8px 14px; width: 190px; }
+.find input::placeholder { color: var(--muted); opacity: 1; }
+.find input:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.chart.map { overflow-x: auto; }
+@media (max-width: 640px) { .chart.map svg { min-width: 760px; } .find input { width: 100%; } .find { flex: 1 1 100%; } }
 .fxbar { display: flex; gap: 2px; height: 12px; border-radius: 3px; overflow: hidden; }
 .fxbar span { display: block; min-width: 2px; }
 </style>
@@ -245,13 +267,17 @@ td .link:hover { color: var(--accent); }
       <label class="alpha" for="alpha"><span>Significance</span>
         <input type="range" id="alpha" min="0.01" max="0.2" step="0.01" value="0.05">
         <output id="alpha-v" for="alpha">p &lt; 0.05</output></label>
+      <button type="button" class="reset" id="alpha-reset" hidden>Back to p &lt; 0.05</button>
+      <button type="button" class="themebtn" id="themebtn"></button>
+      <label class="find"><span class="vh">Find a country</span><input id="find" list="countrylist" placeholder="Find a country" autocomplete="off"></label>
+      <datalist id="countrylist"></datalist>
     </div>
-    <nav class="jump" aria-label="Sections"><a href="#overview">Overview</a><a href="#map">Map</a><a href="#goal1">Goal 1 · Rising?</a><a href="#goal2">Goal 2 · Drivers</a><a href="#goal3">Goal 3 · Unmanaged land</a><a href="#methods">Methods</a></nav>
+    <nav class="jump" aria-label="Sections"><a href="#overview">Overview</a><a href="#map">Map</a><a href="#goal1">Goal 1 · Rising?</a><a href="#goal2">Goal 2 · Drivers</a><a href="#goal3">Goal 3 · Unmanaged land</a><a href="#goal2a">Goal 2a · Draft</a><a href="#methods">Methods</a></nav>
   </header>
   <div id="app"><p class="loading">Loading country series…</p></div>
 </div>
 <div id="tip" hidden></div>
-<aside class="drawer" id="drawer" hidden aria-label="Country detail"></aside>
+<aside class="drawer" id="drawer" hidden role="dialog" aria-labelledby="dtitle"></aside>
 
 <script>
 "use strict";
@@ -270,7 +296,7 @@ const ST = {
 const MIN_MEAN = 1.0;
 const RM = matchMedia("(prefers-reduced-motion: reduce)").matches;
 let DUR = RM ? 0 : 650;
-const state = { ser: "nd", per: 2025, top1: 20, top2: 10, top3: 10, layer: "trend", alpha: 0.05 };
+const state = { ser: "nd", per: 2025, top1: 20, top2: 10, top3: 10, layer: "tonnes", alpha: 0.05 };
 const FX = [{ k: "bo", label: "Boreal forest", c: "var(--fx-bo)" }, { k: "tr", label: "Tropical forest", c: "var(--fx-tr)" },
   { k: "te", label: "Temperate forest", c: "var(--fx-te)" }, { k: "df", label: "Deforestation", c: "var(--fx-df)" }];
 const NRT0 = 2023; // first year from GFED5.1 NRT (VIIRS); earlier years are GFED5.1
@@ -371,7 +397,9 @@ const hideTip = () => { tip.hidden = true; };
 const el = (tag, attrs = {}, html = "") => { const e = document.createElement(tag); Object.entries(attrs).forEach(([k, v]) => e.setAttribute(k, v)); e.innerHTML = html; return e; };
 const serColor = s => `var(--s-${s})`;
 const cssVar = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
-const svgIn = (node, W, H) => d3.select(node).append("svg").attr("viewBox", `0 0 ${W} ${H}`).attr("role", "img");
+// every chart is named after its panel title for screen readers
+const svgIn = (node, W, H) => d3.select(node).append("svg").attr("viewBox", `0 0 ${W} ${H}`).attr("role", "img")
+  .attr("aria-label", (node.closest(".panel")?.querySelector("h3")?.textContent || "Chart") + `, ${SER_NAME[state.ser]}, 2002–${state.per}`);
 // draw at the container's real width so chart text stays at its set size on phones and wide screens
 const chartW = (node, def) => Math.max(300, Math.round(node.clientWidth) || def);
 // drop a label that would collide with one already placed; returns true when it was kept
@@ -397,9 +425,11 @@ function nameLabel(g, r, x, y, anchor = "end") {
 const ttCountry = r => `<div class="t">${r.name}</div><div class="r">${sgn(r.t.pct, 2)}%/yr · p ${pfmt(r.t.p)}</div><div class="r">mean ${fmt(r.t.mean, 2)} Tg C/yr</div>`;
 
 // ---------- page structure helpers ----------
-function goalSection(id, no, q, lede, kpis) {
+const settingsLine = () => `${SER_NAME[state.ser][0].toUpperCase() + SER_NAME[state.ser].slice(1)} · 2002–${state.per} · significant at p &lt; ${state.alpha}`;
+function goalSection(id, no, q, lede, kpis, draft = false) {
   const s = el("section", { class: "goalsec", id });
-  s.innerHTML = `<div class="ghead"><span class="gno">${no}</span><h2>${q}</h2>${lede ? `<p class="lede">${lede}</p>` : ""}
+  s.innerHTML = `<div class="ghead"><div class="qrow" style="justify-content:space-between"><span class="gno">${no}${draft ? ' <span class="draft">Draft definition</span>' : ""}</span><span class="setline">${settingsLine()}</span></div>
+    <h2>${q}</h2>${lede ? `<p class="lede">${lede}</p>` : ""}
     <div class="kpis">${kpis.map(([n, t]) => `<div class="kpi"><span class="n">${n}</span><span class="t">${t}</span></div>`).join("")}</div></div>`;
   return s;
 }
@@ -410,10 +440,12 @@ function part(title, text) {
 }
 function howTo(paras) {
   const d = el("details", { class: "howto" });
-  d.innerHTML = `<summary>How to read this</summary><div class="dbody">${paras.map(t => `<p>${t}</p>`).join("")}</div>`;
+  d.innerHTML = `<summary>How to read this</summary><div class="dbody">${paras.filter(Boolean).map(t => `<p>${t}</p>`).join("")}</div>`;
   return d;
 }
 const panel = (title, id, key = "") => `<div class="panel"><div class="qrow" style="justify-content:space-between"><h3>${title}</h3>${key}</div><div class="chart" id="${id}"></div></div>`;
+const names = a => a.map(r => short(r.name)).join(", ").replace(/, ([^,]*)$/, " and $1");
+const plural = (n, one, many) => `${n} ${+n === 1 ? one : many}`;
 
 // ---------- render ----------
 function render() {
@@ -421,43 +453,48 @@ function render() {
   const app = document.getElementById("app"); app.innerHTML = "";
   const P = `2002–${state.per}`, H1 = `${R.y1s[0]}–${R.y1s[R.y1s.length - 1]}`, H2 = `${R.y2s[0]}–${state.per}`;
   const other = SER_NAME[state.ser === "nd" ? "ov" : "nd"], B = D.bootB, col = serColor(state.ser);
-  const sh = s => R.byStatus[s] / R.totRise, wch = 100 * (R.world.m2 / R.world.m1 - 1);
+  const sh = s => R.byStatus[s] / R.totRise, wch = 100 * (R.world.m2 / R.world.m1 - 1), wt = R.world.t;
   const half = R.rising.slice(0, R.n[50]), sure = R.rows.filter(r => r.f90 > 0).sort((a, b) => b.f90 - a.f90 || b.f50 - a.f50), core = sure.filter(r => r.f90 >= .8);
-  const names = a => a.map(r => short(r.name)).join(", ").replace(/, ([^,]*)$/, " and $1");
+  const halfLabel = n => `${plural(n, "country", "countries")} = half the rise`;
+  const byStatusNames = ks => R.rising.filter(r => ks.includes(r.st));
 
-  // ---- overview: world series, forest-type donut, four headline cards, map
+  // ---- overview: world series, forest-type donut, three headline cards
   const ov = el("section", { id: "overview" });
-  ov.innerHTML = `<div class="hero">
+  ov.innerHTML = `<h2 class="vh">Overview</h2><div class="hero">
       ${panel("World forest fire carbon, Tg C per year", "cw", `<span class="key"><span><span class="sw" style="background:${col}"></span>${SER_NAME[state.ser]}</span><span><span class="sw" style="background:var(--muted);height:2px"></span>${other}</span><span><span class="sw" style="background:var(--accent);height:2px"></span>trend</span></span>`)}
       ${panel(`Which forests burn, ${P}`, "cfx")}
     </div>
     <div class="kpirow">
-      <a href="#goal1"><div class="panel tile"><div class="k">Worldwide trend</div><div class="big">${sgn(R.world.t.pct, 1)}<small>%/yr</small></div><div id="t0"></div></div></a>
       <a href="#goal1"><div class="panel tile"><div class="k">Countries with a significant trend</div><div class="big">${R.up.length}<small>up</small> ${R.down.length}<small>down</small></div><div id="t1"></div></div></a>
-      <a href="#goal2"><div class="panel tile"><div class="k">Countries making up 50 · 75 · 90% of the rise</div><div class="big">${R.n[50]}·${R.n[75]}·${R.n[90]}</div><div id="t2"></div></div></a>
-      <a href="#goal3"><div class="panel tile"><div class="k">Rise in countries reporting unmanaged forest</div><div class="big">${fmt(100 * sh("unmanaged"), 0)}<small>%</small></div><div id="t3"></div></div></a>
+      <a href="#goal2"><div class="panel tile"><div class="k">Countries that make up half the rise (${R.n[75]} for 75%, ${R.n[90]} for 90%)</div><div class="big">${R.n[50]}</div><div id="t2"></div></div></a>
+      <a href="#goal3"><div class="panel tile"><div class="k">Share of the rise from countries reporting unmanaged forest</div><div class="big">${fmt(100 * sh("unmanaged"), 0)}<small>%</small></div><div id="t3"></div></div></a>
     </div>`;
   app.append(ov);
-  drawWorld(ov.querySelector("#cw")); drawTile0(ov.querySelector("#t0")); drawTile1(ov.querySelector("#t1")); drawTile2(ov.querySelector("#t2")); drawTile3(ov.querySelector("#t3"));
+  drawWorld(ov.querySelector("#cw")); drawTile1(ov.querySelector("#t1")); drawTile2(ov.querySelector("#t2")); drawTile3(ov.querySelector("#t3"));
   const wfx = FX.map(f => ({ label: f.label, c: f.c, v: d3.sum(R.rows, r => d3.sum(r.fx_abs[f.k])) }));
   drawDonut(ov.querySelector("#cfx"), wfx, [fmt(d3.sum(wfx, d => d.v) / R.k, 0), "Tg C per year"]);
 
   const map = el("section", { class: "goalsec", id: "map" });
-  map.innerHTML = `<div class="phead"><h3>Map</h3><p>Pick a layer. Hover a country for all its numbers; click it for its time series.</p></div>
+  map.innerHTML = `<div class="phead"><h2 class="h2s">Map</h2><p>Pick a layer. Hover or tap a country for all its numbers; click it for its time series.</p></div>
     <div class="seg" id="layer" role="group" aria-label="Map layer" style="justify-self:start;flex-wrap:wrap;border-radius:16px">${LAYERS.map(l => `<button type="button" data-v="${l.k}" aria-pressed="${state.layer === l.k}">${l.label}</button>`).join("")}</div>
     <div class="panel"><div class="qrow" style="justify-content:space-between"><h3 id="maptitle"></h3><span class="key" id="mapkey"></span></div><div class="chart map" id="cm"></div></div>`;
   app.append(map);
-  const cm = map.querySelector("#cm"), redrawMap = () => { cm.innerHTML = ""; drawMap(cm, map.querySelector("#mapkey"), map.querySelector("#maptitle")); };
+  const cm = map.querySelector("#cm"), redrawMap = () => { cm.innerHTML = ""; drawMap(cm, map.querySelector("#mapkey"), map.querySelector("#maptitle")); cm.scrollLeft = (cm.scrollWidth - cm.clientWidth) / 2; }; // phones scroll the map sideways: start centred
   redrawMap();
   map.querySelectorAll("#layer button").forEach(b => b.addEventListener("click", () => {
     state.layer = b.dataset.v; map.querySelectorAll("#layer button").forEach(x => x.setAttribute("aria-pressed", String(x === b))); redrawMap(); }));
 
-  // ---- Goal 1
-  const g1 = goalSection("goal1", "Goal 1", "Is forest fire carbon rising?",
-    `Yes: ${sgn(R.world.t.pct, 1)}% a year worldwide${R.world.t.sig ? "" : " (not significant)"}, and ${sgn(wch, 0)}% more in ${H2} than in ${H1}.`,
-    [[sgn(R.world.t.pct, 1) + "%", `per year, ${P}${R.world.t.sig ? ` (p ${pfmt(R.world.t.p)})` : ""}`], [sgn(wch, 0) + "%", `${H2} against ${H1}`],
-     [`${R.up.length} / ${R.down.length}`, "countries rising / falling significantly"]]);
-  const p1a = part("Trend of each country", `Biggest emitters on top. The bar shows how fast each one grows (% per year); filled dot = significant trend.`);
+  // ---- Goal 1: the answer follows the test, so it cannot contradict the controls
+  const halvesTxt = `${H2} averaged ${sgn(wch, 0)}% ${wch >= 0 ? "more" : "less"} than ${H1}`;
+  const lede1 = wt.pct > 0 && wt.sig ? `Yes: ${sgn(wt.pct, 1)}% a year worldwide (p ${pfmt(wt.p)}), and ${halvesTxt}.`
+    : wt.pct > 0 ? `Rising by ${sgn(wt.pct, 1)}% a year, but not significant at p &lt; ${state.alpha} (p ${pfmt(wt.p)}); ${halvesTxt}.`
+    : wt.sig ? `No: falling by ${sgn(wt.pct, 1)}% a year worldwide (p ${pfmt(wt.p)}); ${halvesTxt}.`
+    : `No clear trend: ${sgn(wt.pct, 1)}% a year, not significant at p &lt; ${state.alpha}; ${halvesTxt}.`;
+  const g1 = goalSection("goal1", "Goal 1", "Is forest fire carbon rising?", lede1,
+    [[sgn(wt.pct, 1) + "%", `per year worldwide, ${P}`], [sgn(wch, 0) + "%", `${H2} against ${H1}`],
+     [`${R.up.length} · ${R.down.length}`, "countries rising · falling significantly"]]);
+  const cap1 = "Biggest emitters on top. The bar shows how fast each one grows (% per year); filled dot = significant trend.";
+  const p1a = part("Trend of each country", cap1);
   p1a.insertAdjacentHTML("beforeend", `<div class="panel"><div class="qrow" style="justify-content:space-between">${pickHtml("top1", state.top1, R.rel.length, "biggest emitters")}
     <span class="key"><span><span class="dot" style="background:${col}"></span>significant</span><span><span class="dot" style="border:1.5px solid ${col}"></span>not significant</span><span><span class="sw" style="background:var(--muted);width:2px"></span>${other}</span></span></div><div class="chart" id="c1"></div></div>`);
   const p1b = part("First half against second half", `Average per year in ${H1} and in ${H2}. No trend model needed.`);
@@ -466,92 +503,144 @@ function render() {
   g1.append(p1a, p1b);
   g1.append(howTo([
     `<b>Significant</b> means the rise or fall is steady enough that it is unlikely to come from a few unusual fire years alone (Mann–Kendall p &lt; ${state.alpha}). We test the ${R.rel.length} countries that emit at least ${MIN_MEAN} Tg C/yr. About ${fmt(R.rel.length * state.alpha, 0)} of them would look significant by luck alone. We found ${R.up.length + R.down.length}, so the pattern is real, but check single countries with care.`,
-    `<b>Trend in %/yr</b> is the Theil–Sen slope divided by the country's mean, so small and large emitters compare on the same scale. The number left of each name is its size rank.`,
+    `<b>Trend in % per year</b> is the yearly change divided by the country's own average, so small and large emitters compare on one scale. The number left of each name is its size rank. The test does not correct for one year depending on the last, or for testing many countries at once.`,
     `<b>Halves:</b> of the ${R.rel.length} tested countries, ${R.rel.filter(r => r.rch >= 25).length} grew by a quarter or more and ${R.rel.filter(r => r.rch <= -25).length} shrank by a quarter or more.`,
-    state.per >= NRT0 ? `<b>2023–${state.per}</b> come from GFED5.1 NRT (shaded). The 2002–2022 switch at the top gives the GFED5.1-only result.` : `GFED5.1 only, 2002–2022.`]));
+    state.per >= NRT0 ? `<b>${NRT0}–${state.per}</b> come from GFED5.1 NRT, a near-real-time version (shaded “NRT” in the charts). The 2002–2022 switch at the top gives the GFED5.1-only result.` : `GFED5.1 only, 2002–2022.`]));
   g1.append(tableDetails("Table: trend per country", R.rows.filter(r => r.t.mean > 0),
-    [["Country", r => r.name, "s"], ["Mean, Tg C/yr", r => r.t.mean, 2], ["Trend, Tg C/yr²", r => r.t.slope, 3], ["95% CI low", r => r.t.lo, 3], ["95% CI high", r => r.t.hi, 3], ["Trend, %/yr", r => r.t.pct, 2],
-     ["p", r => r.t.p, "p"], ["CV", r => r.t.cv, 2], ...FX.map(f => [`${f.label}, %`, r => 100 * r.fx[f.k], 0]), ["≥ 1 Tg C/yr", r => r.reliable ? "yes" : "", "s"]], 1));
+    [["Country", r => r.name, "s"], ["Mean, Tg C/yr", r => r.t.mean, 2], ["Trend, Tg C/yr per year", r => r.t.slope, 3], ["95% range, low", r => r.t.lo, 3], ["95% range, high", r => r.t.hi, 3], ["Trend, %/yr", r => r.t.pct, 2],
+     ["p", r => r.t.p, "p"], ["Year-to-year variability (CV)", r => r.t.cv, 2], ...FX.map(f => [`${f.label}, %`, r => 100 * r.fx[f.k], 0]), ["≥ 1 Tg C/yr", r => r.reliable ? "yes" : "", "s"]], 1));
   g1.append(tableDetails("Table: first and second half", R.rows.filter(r => r.t.mean > 0),
     [["Country", r => r.name, "s"], [`Mean ${H1}`, r => r.m1, 2], [`Mean ${H2}`, r => r.m2, 2], ["Change, Tg C/yr", r => r.d, 2], ["Change, %", r => r.rch, 0],
      ["Share of increase, %", r => r.d > 0 ? 100 * r.d / R.totInc : null, 1], [`Trend ${H1}, %/yr`, r => r.t1.pct, 1], [`p ${H1}`, r => r.t1.p, "p"], [`Trend ${H2}, %/yr`, r => r.t2.pct, 1], [`p ${H2}`, r => r.t2.p, "p"]], 3));
   app.append(g1);
   const c1 = g1.querySelector("#c1"), redraw1 = () => { c1.innerHTML = ""; drawDots(c1); };
-  redraw1(); bindPick(g1, "top1", "top1", () => { p1a.querySelector(".phead p").innerHTML = `Biggest emitters on top. The bar shows how fast each one grows (% per year); filled dot = significant trend.`; redraw1(); });
+  redraw1(); bindPick(g1, "top1", "top1", redraw1);
   drawHalvesWorld(g1.querySelector("#chA"));
   const chB = g1.querySelector("#chB"), redrawH = () => { chB.innerHTML = ""; drawDumbbell(chB); };
   redrawH(); bindPick(g1, "top3", "top3", redrawH);
 
-  // ---- Goal 2
+  // ---- Goal 2 (2b and how sure; the draft 2a gets its own section below)
+  const unsure = half.filter(r => !r.t.sig), fastest = R.rising.filter(r => r.reliable).sort((a, b) => b.t.pct - a.t.pct)[0];
   const g2 = goalSection("goal2", "Goal 2", "Which countries drive the rise?",
-    `${names(half)} make up half of it. In ${fmt(B, 0)} reruns with reshuffled years, ${names(core)} are drivers at least 80% of the time.`,
-    [[`${R.n[50]}·${R.n[75]}·${R.n[90]}`, "countries make up 50 · 75 · 90% of the rise"], [core.length, "countries are drivers in 80%+ of reruns"],
-     [`${R.boot.n[90][0]}–${R.boot.n[90][2]}`, "countries needed for 90%, across reruns"]]);
-  const p2a = part("Goal 2b · Who adds the most", `Each rising country's trend in Tg C per year, added up. Ranked by tonnes, not by %.`);
-  p2a.insertAdjacentHTML("beforeend", `<div class="grid2">${panel(`Share of the summed rise (+${fmt(R.totRise, 1)} Tg C/yr each year)`, "c2d")}
-    <div class="panel"><div class="qrow" style="justify-content:space-between"><div class="qrow"><h3>Largest rising trends</h3>${pickHtml("top2", state.top2, R.rising.length)}</div><span class="key"><span><span class="sw" style="background:${col}"></span>significant</span><span><span class="sw" style="border:1.4px solid ${col}"></span>not significant</span><span><span class="sw" style="background:var(--ink-2);width:12px;height:2px"></span>95% CI</span></span></div><div class="chart" id="c2b"></div></div></div>`);
+    `${names(half)} ${half.length === 1 ? "makes" : "make"} up half of it.${core.length ? ` In ${fmt(B, 0)} reruns with reshuffled years, ${names(core)} ${core.length === 1 ? "is a driver" : "are drivers"} at least 80% of the time.` : ""}`,
+    [[R.n[50], `${halfLabel(R.n[50]).replace(/^\d+ /, "")} (${R.n[75]} for 75%, ${R.n[90]} for 90%)`], [core.length, "countries are drivers in 80% or more of reruns"],
+     [`${R.boot.n[90][0]}–${R.boot.n[90][2]}`, "countries needed for 90% of the rise, in 9 of 10 reruns"]]);
+  const p2a = part("Goal 2b · Who adds the most", `Each rising country's trend in tonnes, added up: +${fmt(R.totRise, 1)} Tg C/yr per year in total. Ranked by tonnes, not by %.`);
+  p2a.insertAdjacentHTML("beforeend", `<div class="grid2">${panel("Share of the summed rise", "c2d")}
+    <div class="panel"><div class="qrow" style="justify-content:space-between"><div class="qrow"><h3>Largest rising trends</h3>${pickHtml("top2", state.top2, R.rising.length)}</div><span class="key"><span><span class="sw" style="background:${col}"></span>significant</span><span><span class="sw" style="border:1.4px solid ${col}"></span>not significant</span><span><span class="sw" style="background:var(--ink-2);width:12px;height:2px"></span>95% range</span></span></div><div class="chart" id="c2b"></div></div></div>`);
   const p2s = part("How sure are we?", `We reran the ranking ${fmt(B, 0)} times, each time on a random redraw of the ${R.k} years.`);
   p2s.insertAdjacentHTML("beforeend", `<div class="grid2">${panel("How often each country is a driver", "cs1", `<span class="key"><span><span class="sw" style="background:var(--accent);opacity:.55"></span>in the 90% group</span><span><span class="sw" style="background:var(--seq-3)"></span>in the 50% group</span></span>`)}
-    ${panel("Countries needed for 90% of the rise", "cs2")}</div>`);
-  const p2y = part("Goal 2a · Year-to-year swings <span class=\"draft\">Draft definition</span>", "How few countries hold most of each year's above-normal fire carbon.");
-  p2y.insertAdjacentHTML("beforeend", `<div class="grid2">${panel("Countries needed each year", "c3a")}${panel("Each year against the country's own mean", "c3b", `<span class="key" id="heatkey"></span>`)}</div>`);
-  g2.append(p2a, p2s, p2y);
+    ${panel("Countries needed for 90% of the rise", "cs2", `<span class="key"><span><span class="sw" style="background:var(--accent)"></span>middle 90% of reruns</span><span><span class="sw" style="background:var(--ink);width:2px"></span>real data</span></span>`)}</div>`);
+  g2.append(p2a, p2s);
   g2.append(howTo([
-    `<b>Summed rise:</b> the ${R.rising.length} countries with an upward trend add +${fmt(R.totRise, 2)} Tg C/yr each year; falling countries take off ${fmt(-R.fall, 2)}. A big emitter with a small % trend can add more tonnes than a small emitter growing fast, which is why Russia ranks above DR Congo here.`,
-    `<b>Reruns (bootstrap):</b> with ${R.k} years, one extreme season can reorder the ranking. Each rerun draws ${R.k} years at random from the real ones, some twice and some not at all, recomputes every trend and ranks again. A country in the 90% group in nearly every rerun is a driver whatever the odd year does. Russia and Canada have no significant trend, yet stay drivers in ${fmt(100 * (R.byIso.get("RUS")?.f90 || 0), 0)}% and ${fmt(100 * (R.byIso.get("CAN")?.f90 || 0), 0)}% of reruns.`,
-    `<b>Year-to-year swings:</b> each year, each country's emissions above its own mean are added up; the chart counts how few countries hold 50, 75 or 90% of that excess.`]));
+    `<b>Summed rise:</b> the ${R.rising.length} countries with an upward trend add +${fmt(R.totRise, 2)} Tg C/yr per year; falling countries take off ${fmt(-R.fall, 2)}. The world trend (+${fmt(wt.slope, 1)}) is not exactly this sum, because a trend of a total is not the sum of the parts' trends.`,
+    fastest && R.rising[0] && fastest !== R.rising[0] ? `<b>Tonnes, not %:</b> a big emitter with a small % trend can add more tonnes than a small one growing fast. That is why ${short(R.rising[0].name)} (${sgn(R.rising[0].t.pct, 1)}%/yr) ranks above ${short(fastest.name)} (${sgn(fastest.t.pct, 1)}%/yr) here.` : "",
+    `<b>Reruns (bootstrap):</b> with ${R.k} years, one extreme season can reorder the ranking. Each rerun draws ${R.k} years at random from the real ones, some twice and some not at all, recomputes every trend and ranks again. A country in the 90% group in nearly every rerun is a driver whatever the odd year does.${unsure.length ? ` ${names(unsure)} ${unsure.length === 1 ? "has" : "have"} no significant trend, yet ${unsure.length === 1 ? "stays a driver" : "stay drivers"} in ${unsure.map(r => fmt(100 * r.f90, 0) + "%").join(" and ")} of reruns.` : ""}`]));
   g2.append(tableDetails("Table: rising countries", R.rising,
-    [["Country", r => r.name, "s"], ["Trend, Tg C/yr²", r => r.t.slope, 3], ["95% CI low", r => r.t.lo, 3], ["95% CI high", r => r.t.hi, 3], ["Trend, %/yr", r => r.t.pct, 2], ["p", r => r.t.p, "p"],
-     ["Cumulative, %", r => 100 * r.cum, 1], ["Driver in reruns, %", r => 100 * r.f90, 0], ["UNFCCC", r => ST[r.st].label, "s"]], 1));
-  g2.append(tableDetails("Table: year by year", R.annual,
-    [["Year", r => String(r.yr), "s"], ["Above normal, Tg C", r => r.tot, 1], ["50%", r => r.n50, 0], ["75%", r => r.n75, 0], ["90%", r => r.n90, 0],
-     ["Largest contributors", r => r.top.map(c => short(c.name)).join(", "), "s"]], -1));
+    [["Country", r => r.name, "s"], ["Trend, Tg C/yr per year", r => r.t.slope, 3], ["95% range, low", r => r.t.lo, 3], ["95% range, high", r => r.t.hi, 3], ["Trend, %/yr", r => r.t.pct, 2], ["p", r => r.t.p, "p"],
+     ["Running total, %", r => 100 * r.cum, 1], ["Driver in reruns, %", r => 100 * r.f90, 0], ["UNFCCC", r => ST[r.st].label, "s"]], 1));
   app.append(g2);
   const top3 = R.rising.slice(0, 3), rest = R.totRise - d3.sum(top3, r => r.t.slope), shades = ["var(--seq-3)", "var(--seq-2)", "var(--seq-1)"];
-  drawDonut(g2.querySelector("#c2d"), [...top3.map((r, i) => ({ label: short(r.name), v: r.t.slope, c: shades[i], iso: r.iso, sub: `${sgn(r.t.slope, 2)} Tg C/yr each year` })),
-    { label: `${R.rising.length - 3} other countries`, v: rest, c: "var(--absent)", sub: `${sgn(rest, 2)} Tg C/yr each year` }], [R.n[50], "make up half"]);
+  drawDonut(g2.querySelector("#c2d"), [...top3.map((r, i) => ({ label: short(r.name), v: r.t.slope, c: shades[i], iso: r.iso, sub: `${sgn(r.t.slope, 2)} Tg C/yr per year` })),
+    { label: `${R.rising.length - 3} other countries`, v: rest, c: "var(--absent)", sub: `${sgn(rest, 2)} Tg C/yr per year` }], [R.n[50], "make up half"]);
   const c2b = g2.querySelector("#c2b"), redraw2 = () => { c2b.innerHTML = ""; drawRankBars(c2b); };
   redraw2(); bindPick(g2, "top2", "top2", redraw2);
   drawSure(g2.querySelector("#cs1"), sure.slice(0, 10)); drawSureHist(g2.querySelector("#cs2"));
-  drawAnnualCounts(g2.querySelector("#c3a")); drawHeat(g2.querySelector("#c3b"), g2.querySelector("#heatkey"));
 
   // ---- Goal 3
+  const unm = byStatusNames(["unmanaged"]), none = byStatusNames(["absent", "nodata"]), allUnm = R.rows.filter(r => r.unmanShare > .9 && r.t.mean >= .1);
   const g3 = goalSection("goal3", "Goal 3", "How much of the rise is on unmanaged forest land?",
-    `${fmt(100 * sh("unmanaged"), 0)}% of the rise comes from countries that report unmanaged forest to the UNFCCC, mostly Russia and Canada.`,
-    [[fmt(100 * sh("unmanaged"), 0) + "%", "countries reporting unmanaged forest"], [fmt(100 * sh("managed"), 0) + "%", "all forest reported as managed"],
-     [fmt(100 * (sh("absent") + sh("nodata")), 0) + "%", "no UNFCCC number (DR Congo)"]]);
+    `${fmt(100 * sh("unmanaged"), 0)}% of the rise comes from countries that report unmanaged forest to the UNFCCC${unm.length ? `, mostly ${names(unm.slice(0, 2))}` : ""}.`,
+    [[fmt(100 * sh("unmanaged"), 0) + "%", "of the rise: countries reporting unmanaged forest"], [fmt(100 * sh("managed"), 0) + "%", "of the rise: all forest reported as managed"],
+     [fmt(100 * (sh("absent") + sh("nodata")), 0) + "%", `of the rise: no UNFCCC number${none.length ? ` (${names(none.slice(0, 3))})` : ""}`]]);
   const p3 = part("Rise by UNFCCC reporting", "Countries are grouped by what they report, not by where inside the country the fires burn.");
   p3.insertAdjacentHTML("beforeend", `<div class="grid2">${panel("Share of the summed rise", "c4a")}
     ${panel("Trend against unmanaged share", "c4b", `<span class="key"><span><span class="dot" style="background:var(--unmanaged)"></span>reports unmanaged</span><span><span class="dot" style="background:var(--managed)"></span>all managed</span></span>`)}</div>`);
   g3.append(p3);
   g3.append(howTo([
-    "Russia and Canada count whole under “reports unmanaged forest”, although only part of their forest is unmanaged. A fire-level split would need a map of unmanaged land.",
-    "DR Congo and Rep. Congo have no UNFCCC CRT submission, so they fall under “no UNFCCC number”."]));
+    unm.length ? `${names(unm.slice(0, 3))} count whole under “reports unmanaged forest”, although only part of their forest is unmanaged. A fire-level split would need a map of unmanaged land.` : "",
+    none.length ? `${names(none.slice(0, 4))} ${none.length === 1 ? "has" : "have"} no usable UNFCCC forest-land number, so ${none.length === 1 ? "it falls" : "they fall"} under “no UNFCCC number”.` : "",
+    allUnm.length ? `${names(allUnm)} ${allUnm.length === 1 ? "reports" : "report"} more than 90% of ${allUnm.length === 1 ? "its" : "their"} forest land as unmanaged. That is the country's own CRT submission, not a processing error.` : ""]));
   g3.append(tableDetails("Table: UNFCCC forest land per country", R.rows.filter(r => r.t.mean > 0),
     [["Country", r => r.name, "s"], ["Managed, kha", r => r.man, 0], ["Unmanaged, kha", r => r.unman, 0], ["Unmanaged, %", r => r.unmanShare == null ? null : 100 * r.unmanShare, 1],
      ["Trend, %/yr", r => r.t.pct, 2], ["Status", r => r.stText, "s"]], 3));
   app.append(g3);
   const stParts = [["unmanaged"], ["managed"], ["partial"], ["absent", "nodata"]].map(ks => ({
     label: ks[0] === "absent" ? "No UNFCCC number" : ST[ks[0]].label, c: ST[ks[0]].color, v: d3.sum(ks, k => R.byStatus[k]),
-    sub: R.rising.filter(r => ks.includes(r.st)).slice(0, 3).map(r => short(r.name)).join(", ") })).filter(d => d.v > 0);
+    sub: names(byStatusNames(ks).slice(0, 3)) })).filter(d => d.v > 0);
   drawDonut(g3.querySelector("#c4a"), stParts, [fmt(100 * sh("unmanaged"), 0) + "%", "unmanaged"]);
   drawScatter(g3.querySelector("#c4b"));
+
+  // ---- Goal 2a: draft, kept apart from the finished results
+  const med = d3.median(R.annual, a => a.n50), peak = R.annual.reduce((a, b) => b.tot > a.tot ? b : a);
+  const g2y = goalSection("goal2a", "Goal 2a", "Which countries drive year-to-year swings?",
+    `In a typical year, ${plural(fmt(med, 0), "country holds", "countries hold")} half of the above-normal fire carbon. The biggest excess was in ${peak.yr}, led by ${names(peak.top.slice(0, 2))}.`,
+    [[fmt(med, 0), "countries hold half of a typical year's excess"], [peak.yr, "year with the largest excess"]], true);
+  const p2y = part("How concentrated the bad fire years are", "Each year, every country's emissions above its own average, added up.");
+  p2y.insertAdjacentHTML("beforeend", `<div class="grid2">${panel("Countries needed each year", "c3a")}${panel("Each year against the country's own average", "c3b", `<span class="key" id="heatkey"></span>`)}</div>`);
+  g2y.append(p2y);
+  g2y.append(howTo(["The chart counts how few countries hold 50, 75 or 90% of each year's excess. This measures how concentrated the bad years are, not a trend. The definition is still to be agreed with the paper team.",
+    "Heatmap: red = above the country's own average, blue = below. The right column (CV) is year-to-year variability: higher = more erratic."]));
+  g2y.append(tableDetails("Table: year by year", R.annual,
+    [["Year", r => String(r.yr), "s"], ["Above normal, Tg C", r => r.tot, 1], ["50%", r => r.n50, 0], ["75%", r => r.n75, 0], ["90%", r => r.n90, 0],
+     ["Largest contributors", r => r.top.map(c => short(c.name)).join(", "), "s"]], -1));
+  app.append(g2y);
+  drawAnnualCounts(g2y.querySelector("#c3a")); drawHeat(g2y.querySelector("#c3b"), g2y.querySelector("#heatkey"));
 
   // ---- methods
   const m = el("details");
   m.innerHTML = `<summary>Methods and data</summary><div class="dbody methods">
     <p><b>Fire carbon.</b> GFED5.1 (2002–2022) and GFED5.1 NRT reprocessed with combined VIIRS (2023–2025), shared out to countries on a 0.05° grid; the numbers of rsl-slu.github.io/wildfire and the shared data sheet. Tg C per year; × 3.664 for Tg CO₂.</p>
     <p><b>Definitions and forest type.</b> Forest overall = GFED classes boreal forest (sparse boreal 2 + boreal 3), temperate forest (7), tropical forest (12) and deforestation (16). Without deforestation = classes 2, 3, 7 and 12. The forest-type split is each class's share of forest-overall carbon over the period; the map colours the largest of the three forest classes.</p>
-    <p><b>Trend.</b> Theil–Sen slope, also as % of the period mean per year; Mann–Kendall test, significant when p &lt; ${state.alpha} (slider; 0.05 is the convention in the paper figures). 95% confidence interval of the slope from Sen (1968), as in scipy.stats.theilslopes. No correction for serial correlation or for testing many countries. Countries below ${MIN_MEAN} Tg C/yr are greyed on the map and left out of the dot chart.</p>
+    <p><b>Trend.</b> Theil–Sen slope (Tg C/yr per year), also as % of the period mean per year; Mann–Kendall test, significant when p &lt; ${state.alpha} (slider; 0.05 is the paper's convention). 95% range of the slope from Sen (1968), as in scipy.stats.theilslopes. No correction for serial correlation or for testing many countries. Countries below ${MIN_MEAN} Tg C/yr are hatched on the map and left out of the trend chart.</p>
     <p><b>Halves.</b> ${H1} against ${H2} (${R.y1s.length} and ${R.y2s.length} years): change in the mean, and a Theil–Sen trend with Mann–Kendall p inside each half. Countries holding 50, 75 or 90% of the increase are counted as in Goal 2b, from the countries whose mean went up.</p>
-    <p><b>Goal 2b.</b> Countries with a positive slope, ranked by slope in Tg C/yr per year; the smallest number whose slopes add up to 50, 75 or 90% of the summed positive slopes. Falling countries are left out, and because Theil–Sen slopes are not additive the sum differs from the world trend.</p>
+    <p><b>Goal 2b.</b> Countries with a positive slope, ranked by slope in Tg C/yr per year; the smallest number whose slopes add up to 50, 75 or 90% of the summed positive slopes. Falling countries are left out, and because Theil–Sen slopes are not additive the sum differs from the world trend. The map's first layer shows each country's share of this sum.</p>
     <p><b>Reruns.</b> Nonparametric bootstrap over years: ${fmt(B, 0)} resamples of the ${R.k} years with replacement (fixed seed), Theil–Sen slope per country in each (pairs of identical years skipped), Goal 2b ranking repeated; share of resamples in which a country is among those making up 50% and 90% of the summed rise, and the 5–95% range of the counts. Assumes little year-to-year carry-over. Computed in code/04_analyzer_data.py.</p>
     <p><b>Goal 2a (draft).</b> Each year, each country's emissions above its own period mean; the number of countries making up 50, 75 or 90% of that year's excess. To be confirmed with the paper team.</p>
-    <p><b>Managed / unmanaged.</b> UNFCCC CRT Table 4.1 final area compiled by Victoria Dombrowik. Ecuador and Honduras divided by 1000 (reported in ha); EU total, France and UK "Annex" rows and the Pakistan duplicate dropped; newest submission for Denmark and Lithuania. Unmanaged coded NO or NA counted as 0.</p>
+    <p><b>Managed / unmanaged.</b> UNFCCC CRT Table 4.1 final area compiled by Victoria Dombrowik. Ecuador and Honduras divided by 1000 (reported in ha); EU total, France and UK "Annex" rows and the Pakistan duplicate dropped; newest submission for Denmark and Lithuania. Unmanaged coded NO or NA counted as 0. Values are as reported (Argentina, for example, reports 97% unmanaged).</p>
     <p><b>Product change in 2023.</b> 2023–2025 come from GFED5.1 NRT with VIIRS, shaded in the charts; trends ending in 2025 lean on these years, including Canada's record 2023 season.</p>
     <p><b>Known artefact.</b> Zimbabwe drops to 0 from 2020 because GFED's land-cover map stops classing any Zimbabwe cell as tropical forest.</p>
     <p class="muted">${D.countries.length} countries with forest fire in at least one year. Data built ${D.built}.</p></div>`;
-  const mb = el("section", { class: "goalsec", id: "methods" }); mb.append(m); app.append(mb);
+  const mb = el("section", { class: "goalsec", id: "methods" });
+  const pf = part("How the numbers are made", "From satellite fire data to each goal's answer.");
+  pf.insertAdjacentHTML("beforeend", `<div class="panel">${flowFigure(H1, H2)}</div>`);
+  mb.append(pf, m); app.append(mb);
+  watchSections();
+}
+
+
+// calculation procedure, drawn as one figure: inputs at the top, one trend step, each goal at the bottom
+function flowFigure(H1, H2) {
+  const box = (x, y, w, h, t, lines, goal = false) => `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="8" fill="var(--surface)" stroke="currentColor" stroke-opacity="${goal ? .9 : .45}" stroke-width="${goal ? 1.6 : 1.2}"/>
+    <text x="${x + 14}" y="${y + 22}" style="font: 650 14px var(--font-body); fill: ${goal ? "var(--accent)" : "var(--ink)"}">${t}</text>
+    ${lines.map((l, i) => `<text x="${x + 14}" y="${y + 42 + i * 17}" style="font: 12.5px var(--font-body); fill: currentColor">${l}</text>`).join("")}`;
+  const arrow = d => `<path d="${d}" fill="none" stroke="currentColor" stroke-width="1.4" marker-end="url(#fa)"/>`;
+  const lab = (x, y, t, a = "start") => `<text x="${x}" y="${y}" text-anchor="${a}" style="font: italic 12.5px var(--font-body); fill: currentColor">${t}</text>`;
+  const claim = "Calculation procedure: GFED5.1 and NRT fire carbon are summed per country and forest class, turned into two series, a trend is fitted per country, and each goal is computed from that trend; Goal 2a uses the yearly values and Goal 3 adds the UNFCCC table.";
+  return `<figure class="flow"><div class="fwrap"><svg viewBox="0 0 1140 612" role="img" aria-label="${claim}">
+    <defs><marker id="fa" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker></defs>
+    ${box(300, 16, 250, 58, "GFED5.1", ["2002–2022 · 0.05° grid"])}
+    ${box(590, 16, 250, 58, "GFED5.1 NRT (VIIRS)", ["2023–2025 · 0.05° grid"])}
+    ${arrow("M425,74 V108")}${arrow("M715,74 V108")}${lab(727, 96, "summed inside each country")}
+    ${box(300, 110, 540, 58, "Fire carbon per country and year", ["split into the 16 GFED land-cover classes, Tg C"])}
+    ${arrow("M425,168 V212")}${arrow("M715,168 V212")}${lab(727, 196, "forest classes only")}
+    ${box(300, 214, 250, 58, "Without deforestation", ["boreal + temperate + tropical"])}
+    ${box(590, 214, 250, 58, "Forest overall", ["the same + deforestation fires"])}
+    <path d="M425,272 V290 H715 V272" fill="none" stroke="currentColor" stroke-width="1.4"/>${arrow("M570,290 V316")}${lab(582, 308, "one series at a time")}
+    ${arrow("M840,243 H1022 V444")}${lab(1032, 330, "yearly values")}
+    ${box(20, 318, 648, 60, "Trend for each country", ["Theil–Sen slope with 95% range · Mann–Kendall p · countries ≥ 1 Tg C/yr tested"])}
+    ${box(698, 318, 196, 60, "UNFCCC CRT", ["managed / unmanaged area"])}
+    ${arrow("M118,378 V444")}${lab(126, 416, "÷ country mean")}
+    ${arrow("M344,378 V444")}${lab(352, 416, "rising countries")}
+    ${arrow("M570,378 V444")}${lab(578, 416, "resampled years")}
+    ${arrow("M796,378 V444")}${lab(804, 416, "group by status")}
+    ${box(20, 446, 196, 100, "Goal 1", ["% per year, significant", "if p &lt; " + state.alpha, "first vs second half"], true)}
+    ${box(246, 446, 196, 100, "Goal 2b", ["rank by tonnes added;", "countries needed for", "50 · 75 · 90% of the rise"], true)}
+    ${box(472, 446, 196, 100, "How sure", [`${fmt(D.bootB, 0)} reruns: how often`, "each country is among", "the drivers"], true)}
+    ${box(698, 446, 196, 100, "Goal 3", ["share of the rise by", "what each country", "reports to the UNFCCC"], true)}
+    ${box(924, 446, 196, 100, "Goal 2a (draft)", ["each year's excess", "over the country's", "own average"], true)}
+    ${arrow("M344,546 V580 H796 V550")}${lab(570, 600, "each country's rise", "middle")}
+  </svg></div><figcaption>How every number on this page is made. All goals start from the same per-country trend, except Goal 2a, which uses the yearly values directly; Goal 3 adds the UNFCCC forest-land table.</figcaption></figure>`;
 }
 
 function drawDonut(node, parts, [big, small]) {
@@ -562,7 +651,7 @@ function drawDonut(node, parts, [big, small]) {
   const g = svg.append("g").attr("transform", `translate(${r},${r})`);
   const arc = d3.arc().innerRadius(r * .62).outerRadius(r - 2).cornerRadius(3);
   g.selectAll("path").data(d3.pie().sort(null).value(p => p.v)(parts)).join("path")
-    .attr("fill", d => d.data.c).attr("stroke", "var(--surface)").attr("stroke-width", 2).attr("class", d => d.data.iso ? "hit" : null)
+    .attr("fill", d => d.data.c).attr("fill-opacity", d => d.data.o ?? 1).attr("stroke", "var(--surface)").attr("stroke-width", 2).attr("class", d => d.data.iso ? "hit" : null)
     .on("mousemove", (ev, d) => showTip(ev, `<div class="t">${d.data.label}</div><div class="r">${fmt(100 * d.data.v / tot, 1)}%</div>${d.data.sub ? `<div class="r">${d.data.sub}</div>` : ""}`))
     .on("mouseleave", hideTip).on("click", (ev, d) => d.data.iso && openCountry(d.data.iso))
     .attr("d", d => arc({ ...d, endAngle: d.startAngle }))
@@ -571,17 +660,8 @@ function drawDonut(node, parts, [big, small]) {
     .attr("font-weight", 760).style("font-size", "40px").text(big);
   g.append("text").attr("text-anchor", "middle").attr("y", 26).style("fill", "var(--ink-2)").style("font-size", "12.5px").text(small);
   const ul = el("ul"); wrap.append(ul);
-  parts.forEach(p => ul.insertAdjacentHTML("beforeend", `<li><span class="sw" style="background:${p.c}"></span><span>${p.label}</span><b>${fmt(100 * p.v / tot, 0)}%</b>${p.sub ? `<small>${p.sub}</small>` : ""}</li>`));
+  parts.forEach(p => ul.insertAdjacentHTML("beforeend", `<li><span class="sw" style="background:${p.c};opacity:${p.o ?? 1}"></span><span>${p.label}</span><b>${fmt(100 * p.v / tot, 0)}%</b>${p.sub ? `<small>${p.sub}</small>` : ""}</li>`));
 }
-function drawTile0(node) {
-  const W = 120, H = 54, y = R.world.y, x = d3.scaleLinear().domain([0, y.length - 1]).range([2, W - 2]), sy = d3.scaleLinear().domain([0, d3.max(y)]).range([H - 4, 4]);
-  const s = d3.select(node).append("svg").attr("width", W).attr("height", H).attr("viewBox", `0 0 ${W} ${H}`);
-  const bw = (W - 4) / y.length;
-  s.selectAll("rect").data(y).join("rect").attr("x", (v, i) => 2 + i * bw).attr("width", bw - 1).attr("rx", 1).attr("fill", serColor(state.ser)).attr("fill-opacity", .5).attr("y", v => sy(v)).attr("height", v => H - 4 - sy(v));
-  const f = i => R.world.t.icpt + R.world.t.slope * R.yrs[i];
-  s.append("line").attr("x1", x(0)).attr("x2", x(y.length - 1)).attr("y1", sy(f(0))).attr("y2", sy(f(y.length - 1))).attr("stroke", "var(--accent)").attr("stroke-width", 2.2);
-}
-
 // ---------- tables ----------
 function tableDetails(title, rows, cols, sortCol) {
   const id = "q-" + title.toLowerCase().replace(/[^a-z]+/g, "-");
@@ -603,11 +683,12 @@ function tableDetails(title, rows, cols, sortCol) {
     const tb = el("tbody");
     data.forEach(r => { const tr = el("tr");
       tr.innerHTML = cols.map((c, i) => { const v = c[1](r);
-        if (i === 0 && r.iso) return `<td><span class="link" data-iso="${r.iso}">${v}</span></td>`;
+        if (i === 0 && r.iso) return `<td><button type="button" class="link" data-iso="${r.iso}">${v}</button></td>`;
         if (c[2] === "s") return `<td style="${i ? "font-family:var(--font-body)" : ""}">${v ?? ""}</td>`;
         if (c[2] === "p") return `<td class="${v < state.alpha ? "sig" : ""}">${pfmt(v)}</td>`;
         return `<td>${v == null ? "–" : fmt(v, c[2])}</td>`; }).join("");
       tb.append(tr); });
+    if (!data.length) { const td = el("td", { colspan: cols.length, class: "empty" }); td.textContent = `No country matches “${box.value.trim()}”. Try part of the name or its ISO code.`; const tr = el("tr"); tr.append(td); tb.append(tr); }
     t.append(tb); wrap.innerHTML = ""; wrap.append(t);
     t.querySelectorAll("th").forEach(th => { const go = () => { const i = +th.dataset.i; if (i === sc) sd = !sd; else { sc = i; sd = true; } draw(); };
       th.addEventListener("click", go); th.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); go(); } }); });
@@ -640,7 +721,7 @@ function drawWorld(node) {
     .style("font-stretch", "75%").text(`${sgn(w.t.pct, 1)}%/yr`);
   const bigW = big.node().getComputedTextLength();
   s.append("text").attr("x", narrow ? m.l : m.l + bigW + 14).attr("y", narrow ? 46 : 24).style("fill", "var(--muted)").style("font-size", narrow ? "12.5px" : "13px")
-    .text(narrow ? `Theil–Sen ${sgn(w.t.slope, 1)} Tg C/yr² · p ${pfmt(w.t.p)} · mean ${fmt(w.t.mean, 0)}` :`Theil–Sen ${sgn(w.t.slope, 1)} Tg C/yr² · Mann–Kendall p ${pfmt(w.t.p)} · mean ${fmt(w.t.mean, 0)} Tg C/yr`);
+    .text(narrow ? `${sgn(w.t.slope, 1)} Tg C/yr per year · p ${pfmt(w.t.p)}` : `${sgn(w.t.slope, 1)} Tg C/yr per year · p ${pfmt(w.t.p)}${w.t.sig ? "" : " (not significant)"} · average ${fmt(w.t.mean, 0)} Tg C/yr`);
 }
 
 function drawTile1(node) {
@@ -674,6 +755,7 @@ function drawTile3(node) {
 
 // ---------- map ----------
 const LAYERS = [
+  { k: "tonnes", label: "Tonnes added", title: () => `Share of the summed rise: tonnes each country adds per year, 2002–${state.per}` },
   { k: "trend", label: "Trend", title: () => `Trend per country, %/yr, 2002–${state.per}` },
   { k: "change", label: "Half vs half", title: () => `Change in the mean, ${R.y1s[0]}–${R.y1s[R.y1s.length - 1]} to ${R.y2s[0]}–${state.per}` },
   { k: "type", label: "Forest type", title: () => "Forest class with the most fire carbon (hover for the full split)" },
@@ -692,7 +774,8 @@ function ttFull(r) {
     <div class="r">halves ${fmt(r.m1, 1)} → ${fmt(r.m2, 1)} (${sgn(r.rch, 0)}%)</div>
     ${fx ? `<div class="r">${fx}</div>` : ""}
     <div class="r">${ST[r.st].label}${r.unmanShare != null ? ` · ${fmt(100 * r.unmanShare, 0)}% unmanaged` : ""}</div>
-    <div class="r">driver in ${fmt(100 * r.f90, 0)}% of resamples</div>`;
+    ${r.t.slope > 0 ? `<div class="r">adds ${sgn(r.t.slope, 2)} Tg C/yr per year (${fmt(100 * r.t.slope / R.totRise, 1)}% of the rise)</div>` : ""}
+    <div class="r">driver in ${fmt(100 * r.f90, 0)}% of reruns</div>`;
 }
 function drawMap(node, keyNode, titleNode) {
   const W = 960, H = 440, L = state.layer;
@@ -702,16 +785,19 @@ function drawMap(node, keyNode, titleNode) {
   const st = [cssVar("--div-neg"), cssVar("--div-neg-2"), cssVar("--div-mid"), cssVar("--div-pos-2"), cssVar("--div-pos")];
   const chg = d3.scaleLinear().domain([-1, -.4, 0, .4, 1]).range(st).interpolate(d3.interpolateRgb).clamp(true);
   const seq = d3.scaleLinear().domain([0, .5, 1]).range([cssVar("--seq-1"), cssVar("--seq-2"), cssVar("--seq-3")]).interpolate(d3.interpolateRgb).clamp(true);
+  const maxSh = R.rising.length ? R.rising[0].t.slope / R.totRise : 1;
   const fill = r => {
+    if (L === "tonnes") return r.t.slope > 0 ? seq(Math.sqrt(r.t.slope / R.totRise / maxSh)) : r.t.slope < 0 ? "var(--fall)" : "url(#hatch)";
     if (L === "unfccc") return ST[r.st].color;
-    if (L === "type") return r.dom && r.t.mean >= 0.1 ? r.dom.c : "var(--land-2)";
-    if (L === "sure") return r.f90 > 0 ? seq(r.f90) : "var(--land-2)";
-    if (!r.reliable) return "var(--land-2)";
-    if (L === "change") return r.m1 > 0 && r.m2 > 0 ? chg(Math.log2(r.m2 / r.m1)) : "var(--land-2)";
-    return isFinite(r.t.pct) ? div(r.t.pct) : "var(--land-2)";
+    if (L === "type") return r.dom && r.t.mean >= 0.1 ? r.dom.c : "url(#hatch)";
+    if (L === "sure") return r.f90 > 0 ? seq(r.f90) : "url(#hatch)";
+    if (!r.reliable) return "url(#hatch)";
+    if (L === "change") return r.m1 > 0 && r.m2 > 0 ? chg(Math.log2(r.m2 / r.m1)) : "url(#hatch)";
+    return isFinite(r.t.pct) ? div(r.t.pct) : "url(#hatch)";
   };
   const fade = r => L === "trend" && r.reliable && !r.t.sig ? .45 : 1;
   const s = svgIn(node, W, H);
+  s.append("defs").html(`<pattern id="hatch" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="6" height="6" fill="var(--land)"/><line x1="0" y1="0" x2="0" y2="6" stroke="var(--land-2)" stroke-width="2.6"/></pattern>`);
   s.append("rect").attr("width", W).attr("height", H).attr("rx", 6).attr("fill", "var(--ocean)");
   s.append("g").selectAll("path").data(GEO.features).join("path").attr("class", "country").attr("d", path)
     .attr("fill", "var(--land)")
@@ -722,12 +808,13 @@ function drawMap(node, keyNode, titleNode) {
         .transition().duration(DUR).delay(RM ? 0 : 80).attr("fill", fill(r)).attr("fill-opacity", fade(r));
     });
   titleNode.textContent = LAYERS.find(l => l.k === L).title();
-  const below = swKey("var(--land-2)", `below ${MIN_MEAN} Tg C/yr`);
-  keyNode.innerHTML = L === "trend" ? `${gradKey("−6%", "+6%", [-6, -3, 0, 3, 6].map(v => div(v)))}<span>faded: not significant</span>${below}`
+  const hatch = "repeating-linear-gradient(45deg, var(--land) 0 3px, var(--land-2) 3px 5.5px)", below = swKey(hatch, `below ${MIN_MEAN} Tg C/yr`);
+  keyNode.innerHTML = L === "tonnes" ? `${gradKey("0%", fmt(100 * maxSh, 0) + "%", [0, .5, 1].map(v => seq(v)))}${swKey("var(--fall)", "falling")}`
+    : L === "trend" ? `${gradKey("−6%", "+6%", [-6, -3, 0, 3, 6].map(v => div(v)))}<span>faded: not significant</span>${below}`
     : L === "change" ? `${gradKey("½×", "2×", [-1, -.5, 0, .5, 1].map(v => chg(v)))}${below}`
-    : L === "type" ? FX.slice(0, 3).map(f => swKey(f.c, f.label)).join("") + swKey("var(--land-2)", "little forest fire")
+    : L === "type" ? FX.slice(0, 3).map(f => swKey(f.c, f.label)).join("") + swKey(hatch, "little forest fire")
     : L === "unfccc" ? ["unmanaged", "managed", "partial", "absent"].map(k => swKey(ST[k].color, ST[k].label)).join("")
-    : `${gradKey("0%", "100%", [0, .5, 1].map(v => seq(v)))}${swKey("var(--land-2)", "never")}`;
+    : `${gradKey("0%", "100%", [0, .5, 1].map(v => seq(v)))}${swKey(hatch, "never")}`;
 }
 
 // ---------- halves ----------
@@ -791,7 +878,7 @@ function drawSure(node, data) {
     g.append("text").attr("x", W - 4).attr("y", y + rowH / 2).attr("dy", "0.32em").attr("text-anchor", "end").style("font-family", "var(--font-data)").style("font-size", "12px")
       .style("fill", "var(--ink)").text(fmt(100 * r.f90, 0) + "%");
     g.append("rect").attr("class", "hit").attr("x", m.l).attr("y", y).attr("width", W - m.l).attr("height", rowH).attr("fill", "transparent")
-      .on("mousemove", ev => showTip(ev, `<div class="t">${r.name}</div><div class="r">in the 90% group: ${fmt(100 * r.f90, 1)}%</div><div class="r">in the 50% group: ${fmt(100 * r.f50, 1)}%</div><div class="r">trend ${sgn(r.t.slope, 2)} Tg C/yr² · p ${pfmt(r.t.p)}</div>`))
+      .on("mousemove", ev => showTip(ev, `<div class="t">${r.name}</div><div class="r">in the 90% group: ${fmt(100 * r.f90, 1)}%</div><div class="r">in the 50% group: ${fmt(100 * r.f50, 1)}%</div><div class="r">trend ${sgn(r.t.slope, 2)} Tg C/yr per year · p ${pfmt(r.t.p)}</div>`))
       .on("mouseleave", hideTip).on("click", () => openCountry(r.iso));
   });
   s.append("text").attr("x", x(.8) + 4).attr("y", H - m.b - 4).style("fill", "var(--muted)").style("font-size", "11.5px").text("80%");
@@ -815,7 +902,6 @@ function drawSureHist(node) {
     s.append("line").attr("x1", xr).attr("x2", xr).attr("y1", m.t - 6).attr("y2", H - m.b).attr("stroke", "var(--ink)").attr("stroke-width", 1.4).attr("stroke-dasharray", "4 3");
     s.append("text").attr("x", xr + 5).attr("y", m.t - 10).style("fill", "var(--ink)").attr("font-weight", 650).text(`real data: ${R.n[90]}`);
   }
-  s.append("text").attr("x", W - m.r).attr("y", 12).attr("text-anchor", "end").style("fill", "var(--muted)").style("font-size", "12px").text(`orange: middle 90% (${lo}–${hi})`);
 }
 
 // ---------- Goal 1 dots ----------
@@ -830,8 +916,8 @@ function drawDots(node) {
   s.append("line").attr("class", "zero").attr("x1", x(0)).attr("x2", x(0)).attr("y1", m.t).attr("y2", H - m.b).attr("stroke-width", 1.2);
   s.append("g").attr("class", "ax").attr("transform", `translate(0,${H - m.b})`).call(d3.axisBottom(x).ticks(nw ? 3 : 10).tickFormat(d => sgn(d, 0) + "%").tickSizeOuter(0));
   const meanRank = new Map(byMean.map((r, i) => [r.iso, i + 1]));
-  s.append("text").attr("x", W - 4).attr("y", 11).attr("text-anchor", "end").style("fill", "var(--muted)").style("font-size", "11.5px").text(nw ? "Tg C/yr" : "mean, Tg C/yr");
-  s.append("text").attr("x", m.l - 10).attr("y", 11).attr("text-anchor", "end").style("fill", "var(--muted)").style("font-size", "11.5px").text("rank by size · country");
+  s.append("text").attr("x", W - 4).attr("y", 11).attr("text-anchor", "end").style("fill", "var(--muted)").style("font-size", "12.5px").text(nw ? "Tg C/yr" : "mean, Tg C/yr");
+  s.append("text").attr("x", m.l - 10).attr("y", 11).attr("text-anchor", "end").style("fill", "var(--muted)").style("font-size", "12.5px").text("rank by size · country");
   data.forEach((r, i) => {
     const y = m.t + i * rowH + rowH / 2, g = s.append("g");
     nameLabel(g, r, m.l - 10, y);
@@ -850,7 +936,7 @@ function drawDots(node) {
 
 // ---------- Goal 2b ----------
 function drawRankBars(node) {
-  const data = state.top2 ? R.rising.slice(0, state.top2) : R.rising, rowH = 25, m = { t: 20, r: 104, b: 24, l: 150 }, W = chartW(node, 520), H = m.t + m.b + data.length * rowH;
+  const W = chartW(node, 520), nw = W < 440, data = state.top2 ? R.rising.slice(0, state.top2) : R.rising, rowH = 25, m = { t: 20, r: nw ? 58 : 104, b: 24, l: nw ? 112 : 150 }, H = m.t + m.b + data.length * rowH;
   // the axis follows the bars; confidence intervals that run past it end in an arrow
   const top = d3.max(data, r => r.t.slope), lo = Math.min(0, Math.max(d3.min(data, r => r.t.lo), -0.5 * top)), hi = Math.max(top, Math.min(d3.max(data, r => r.t.hi), 1.6 * top));
   const x = d3.scaleLinear().domain([lo, hi]).nice().range([m.l, W - m.r]), [d0, d1] = x.domain();
@@ -858,8 +944,8 @@ function drawRankBars(node) {
   s.append("g").attr("class", "grid").selectAll("line").data(x.ticks(W < 560 ? 3 : 4)).join("line").attr("x1", d => x(d)).attr("x2", d => x(d)).attr("y1", m.t).attr("y2", H - m.b);
   s.append("line").attr("class", "zero").attr("x1", x(0)).attr("x2", x(0)).attr("y1", m.t).attr("y2", H - m.b);
   s.append("g").attr("class", "ax").attr("transform", `translate(0,${H - m.b})`).call(d3.axisBottom(x).ticks(W < 560 ? 3 : 4).tickSizeOuter(0));
-  s.append("text").attr("x", W - 54).attr("y", 12).attr("text-anchor", "end").style("fill", "var(--muted)").style("font-size", "11.5px").text("trend");
-  s.append("text").attr("x", W - 4).attr("y", 11).attr("text-anchor", "end").style("fill", "var(--muted)").style("font-size", "11.5px").text("cum.");
+  s.append("text").attr("x", nw ? W - 4 : W - 54).attr("y", 12).attr("text-anchor", "end").style("fill", "var(--muted)").style("font-size", "11.5px").text("trend");
+  if (!nw) s.append("text").attr("x", W - 4).attr("y", 11).attr("text-anchor", "end").style("fill", "var(--muted)").style("font-size", "11.5px").text("total");
   data.forEach((r, i) => {
     const y = m.t + i * rowH, cy = y + rowH / 2 - 1.5, g = s.append("g");
     nameLabel(g, r, m.l - 8, y + rowH / 2 - 1);
@@ -871,10 +957,10 @@ function drawRankBars(node) {
       [[a, r.t.lo < d0, -1], [b, r.t.hi > d1, 1]].forEach(([p, cut, dir]) => ci.append("path")
         .attr("d", cut ? `M${p - dir * 4},${cy - 3.5}L${p},${cy}L${p - dir * 4},${cy + 3.5}` : `M${p},${cy - 4}V${cy + 4}`));
     }
-    g.append("text").attr("x", W - 54).attr("y", y + rowH / 2 - 1).attr("dy", "0.32em").attr("text-anchor", "end").style("font-family", "var(--font-data)").style("font-size", "12px").style("fill", "var(--ink)").text(sgn(r.t.slope, 2));
-    g.append("text").attr("x", W - 4).attr("y", y + rowH / 2 - 1).attr("dy", "0.32em").attr("text-anchor", "end").style("fill", "var(--muted)").style("font-family", "var(--font-data)").style("font-size", "12px").text(fmt(100 * r.cum, 0) + "%");
+    g.append("text").attr("x", nw ? W - 4 : W - 54).attr("y", y + rowH / 2 - 1).attr("dy", "0.32em").attr("text-anchor", "end").style("font-family", "var(--font-data)").style("font-size", "12px").style("fill", "var(--ink)").text(sgn(r.t.slope, 2));
+    if (!nw) g.append("text").attr("x", W - 4).attr("y", y + rowH / 2 - 1).attr("dy", "0.32em").attr("text-anchor", "end").style("fill", "var(--muted)").style("font-family", "var(--font-data)").style("font-size", "12px").text(fmt(100 * r.cum, 0) + "%");
     g.append("rect").attr("class", "hit").attr("x", m.l).attr("y", y).attr("width", W - m.l).attr("height", rowH).attr("fill", "transparent")
-      .on("mousemove", ev => showTip(ev, ttCountry(r) + `<div class="r">${sgn(r.t.slope, 3)} Tg C/yr² (95% CI ${fmt(r.t.lo, 2)} to ${fmt(r.t.hi, 2)})</div><div class="r">${ST[r.st].label}</div>`)).on("mouseleave", hideTip).on("click", () => openCountry(r.iso));
+      .on("mousemove", ev => showTip(ev, ttCountry(r) + `<div class="r">${sgn(r.t.slope, 3)} Tg C/yr per year (95% CI ${fmt(r.t.lo, 2)} to ${fmt(r.t.hi, 2)})</div><div class="r">${ST[r.st].label}</div>`)).on("mouseleave", hideTip).on("click", () => openCountry(r.iso));
   });
 }
 
@@ -922,7 +1008,7 @@ function drawHeat(node, keyNode) {
     g.append("text").attr("x", W - 2).attr("y", y + ch / 2).attr("dy", "0.32em").attr("text-anchor", "end").style("font-family", "var(--font-data)").style("font-size", "11.5px").style("fill", "var(--muted)").text(fmt(r.t.cv, 1));
   });
   s.append("text").attr("x", W - 2).attr("y", H - 7).attr("text-anchor", "end").style("font-size", "11.5px").style("fill", "var(--muted)").text("CV");
-  s.append("g").selectAll("text").data(yrs.filter(v => v % 5 === 0)).join("text").attr("x", v => m.l + (yrs.indexOf(v) + .5) * cw).attr("y", H - 7).attr("text-anchor", "middle")
+  s.append("g").selectAll("text").data(yrs.filter(v => v % (W < 440 ? 10 : 5) === 0)).join("text").attr("x", v => m.l + (yrs.indexOf(v) + .5) * cw).attr("y", H - 7).attr("text-anchor", "middle")
     .style("font-family", "var(--font-data)").style("font-size", "11.5px").style("fill", "var(--muted)").text(d => d);
   keyNode.innerHTML = `<span style="display:inline-flex;align-items:center;gap:6px"><span style="font-family:var(--font-data);font-size:12px">¼×</span>
     <span style="width:96px;height:9px;border-radius:2px;background:linear-gradient(90deg,${st.join(",")})"></span><span style="font-family:var(--font-data);font-size:12px">4×</span></span>`;
@@ -979,7 +1065,7 @@ function openCountry(iso, focus = true) {
   const o = state.ser === "nd" ? "ov" : "nd", k = R.k, other = r[o].slice(0, k), yrs = R.yrs;
   if (drawer.hidden) lastFocus = document.activeElement;
   drawer.dataset.iso = r.iso;
-  drawer.innerHTML = `<div class="dhead"><div class="title"><h2>${r.name}</h2><div class="sub">${r.iso} · ${SER_NAME[state.ser]}, ${R.yrs[0]}–${state.per}</div></div><button class="close" type="button" id="dclose">Close</button></div>
+  drawer.innerHTML = `<div class="dhead"><div class="title"><h2 id="dtitle">${r.name}</h2><div class="sub">${r.iso} · ${SER_NAME[state.ser]}, ${R.yrs[0]}–${state.per}</div></div><button class="close" type="button" id="dclose">Close</button></div>
     <span class="chipx">${ST[r.st].label}${r.reliable ? "" : ` · below ${MIN_MEAN} Tg C/yr`}</span>
     <div class="dstats"><div><span class="k">Trend</span><span class="v" style="color:${r.t.sig ? "var(--accent)" : "var(--ink)"}">${sgn(r.t.pct, 1)}%</span></div>
       <div><span class="k">Mean, Tg C/yr</span><span class="v">${fmt(r.t.mean, r.t.mean < 1 ? 2 : 1)}</span></div><div><span class="k">p</span><span class="v">${pfmt(r.t.p)}</span></div></div>
@@ -1017,6 +1103,32 @@ function openCountry(iso, focus = true) {
   if (focus) document.getElementById("dclose").focus();
 }
 document.addEventListener("keydown", e => { if (e.key === "Escape") closeDrawer(); });
+// keep keyboard focus inside the open drawer
+drawer.addEventListener("keydown", e => {
+  if (e.key !== "Tab") return;
+  const f = [...drawer.querySelectorAll("button, [href], input, select, [tabindex]:not([tabindex='-1'])")]; if (!f.length) return;
+  const a = f[0], z = f[f.length - 1];
+  if (e.shiftKey && document.activeElement === a) { e.preventDefault(); z.focus(); } else if (!e.shiftKey && document.activeElement === z) { e.preventDefault(); a.focus(); }
+});
+// jump links mark the section being read
+let secObs;
+function watchSections() {
+  if (!("IntersectionObserver" in window)) return;
+  if (secObs) secObs.disconnect();
+  const links = [...document.querySelectorAll(".jump a")];
+  secObs = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) links.forEach(a => a.getAttribute("href") === "#" + e.target.id ? a.setAttribute("aria-current", "true") : a.removeAttribute("aria-current")); }), { rootMargin: "-35% 0px -60% 0px" });
+  links.forEach(a => { const t = document.querySelector(a.getAttribute("href")); if (t) secObs.observe(t); });
+}
+// header search: type a country, open its drawer
+{
+  const f = document.getElementById("find"), go = () => {
+    const q = f.value.trim().toLowerCase(); if (!q || !R) return;
+    const r = R.rows.find(c => c.name.toLowerCase() === q || short(c.name).toLowerCase() === q || c.iso.toLowerCase() === q)
+      || R.rows.find(c => c.name.toLowerCase().startsWith(q) || short(c.name).toLowerCase().startsWith(q));
+    if (r) { f.value = ""; openCountry(r.iso); }
+  };
+  f.addEventListener("change", go); f.addEventListener("keydown", e => { if (e.key === "Enter") go(); });
+}
 
 // ---------- controls ----------
 function bindSeg(id, key, cast) {
@@ -1036,16 +1148,28 @@ bindSeg("ser", "ser", String); bindSeg("per", "per", Number);
   }).observe(document.getElementById("app"));
 }
 { // significance slider: label follows the thumb, charts redraw (without animation) once it settles
-  const a = document.getElementById("alpha"), out = document.getElementById("alpha-v"); let tmr;
+  const a = document.getElementById("alpha"), out = document.getElementById("alpha-v"), rs = document.getElementById("alpha-reset"); let tmr;
+  rs.addEventListener("click", () => { a.value = "0.05"; a.dispatchEvent(new Event("input")); a.focus(); });
   a.addEventListener("input", () => {
-    state.alpha = +(+a.value).toFixed(2); out.textContent = `p < ${state.alpha.toFixed(2)}`;
+    state.alpha = +(+a.value).toFixed(2); out.textContent = `p < ${state.alpha.toFixed(2)}`; rs.hidden = state.alpha === 0.05;
     clearTimeout(tmr); tmr = setTimeout(() => rerender(false), 140);
   });
 }
 matchMedia("(prefers-color-scheme: dark)").addEventListener?.("change", () => D && rerender(false));
+{ // light / dark switch: remembered across the dashboard, explorer and analyzer; charts redraw in the new colours
+  const KEY = "rsl-theme", root = document.documentElement, btn = document.getElementById("themebtn");
+  const cur = () => root.dataset.theme || (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+  const show = () => { btn.textContent = cur() === "dark" ? "Light theme" : "Dark theme"; };
+  try { const t = localStorage.getItem(KEY); if (t === "light" || t === "dark") root.dataset.theme = t; } catch (e) {}
+  show();
+  btn.addEventListener("click", () => { const t = cur() === "dark" ? "light" : "dark"; root.dataset.theme = t; try { localStorage.setItem(KEY, t); } catch (e) {} show(); });
+  matchMedia("(prefers-color-scheme: dark)").addEventListener?.("change", show);
+  new MutationObserver(() => D && rerender(false)).observe(root, { attributes: true, attributeFilter: ["data-theme"] });
+}
 
 Promise.all([fetch("analyzer.json"), fetch("countries.json")].map(p => p.then(r => { if (!r.ok) throw new Error(r.url.split("/").pop() + " " + r.status); return r.json(); })))
-  .then(([d, g]) => { D = d; GEO = g; render(); })
-  .catch(err => { document.getElementById("app").innerHTML = `<p class="loading">The page data did not load (${err.message}). Republish the page with analyzer.json and countries.json.</p>`; });
+  .then(([d, g]) => { D = d; GEO = g; render();
+    document.getElementById("countrylist").innerHTML = D.countries.map(c => `<option value="${c.name}"></option>`).join(""); })
+  .catch(err => { document.getElementById("app").innerHTML = `<p class="loading">The data for this page could not be loaded. Please reload the page; if it keeps failing, tell the page owner (${err.message}).</p>`; });
 </script>
 </html>

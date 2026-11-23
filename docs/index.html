@@ -103,16 +103,20 @@ select {
 .toggle[aria-pressed="true"] .dot { background: var(--ink); border-color: var(--ink); }
 .period { display: flex; gap: 4px; align-items: center; color: var(--muted); }
 
+.themebtn { font: 600 13.5px/1 var(--font-body); color: var(--ink-2); background: var(--line); border: 0; border-radius: 999px; min-height: 38px; padding: 0 16px; cursor: pointer; }
+.themebtn:hover { color: var(--ink); }
+.themebtn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 /* site switch, shared by the three pages: an accent thumb marks the page and slides to the one you pick */
 .site { position: relative; display: inline-flex; align-items: center; padding: 3px; border-radius: 999px; background: var(--line); isolation: isolate; justify-self: start; max-width: 100%; overflow-x: auto; scrollbar-width: none; }
 .site a { position: relative; z-index: 1; font: 600 13.5px/1 var(--font-body); color: var(--ink-2); text-decoration: none; padding: 0 14px; min-height: 32px; display: inline-flex; align-items: center; border-radius: 999px; white-space: nowrap; transition: color .2s; }
 .site a:hover { color: var(--ink); }
-.site a[aria-current="page"] { color: var(--bg); }
+.site a[aria-current="page"] { color: var(--surface); }
 .site:not(.ready) a[aria-current="page"] { background: var(--accent); }
 .site a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 .site .thumb { position: absolute; z-index: 0; top: 3px; bottom: 3px; left: 0; width: 0; border-radius: 999px; background: var(--accent); transition: transform .26s cubic-bezier(.2, .8, .2, 1), width .26s cubic-bezier(.2, .8, .2, 1); }
 @media (prefers-reduced-motion: reduce) { .site .thumb, .site a { transition: none; } }
-.bar .site { align-self: center; margin-right: auto; }
+.bar .site { align-self: center; }
+.bar .themebtn { align-self: center; margin-right: auto; }
 
 /* body: chart column + map */
 .main { flex: 1; min-height: 0; display: grid; grid-template-columns: minmax(360px, 4fr) minmax(0, 7fr); }
@@ -233,6 +237,18 @@ svg#over { touch-action: none; }
     e.preventDefault(); cur().removeAttribute("aria-current"); a.setAttribute("aria-current", "page"); place(a);
     setTimeout(() => { location.href = a.href; }, RM ? 0 : 260);
   }));
+})();
+</script>
+<button type="button" class="themebtn" id="themebtn"></button>
+<script>
+(() => { // light / dark switch, remembered across the dashboard, explorer and analyzer
+  const KEY = "rsl-theme", root = document.documentElement, btn = document.currentScript.previousElementSibling;
+  const cur = () => root.dataset.theme || (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+  const show = () => { btn.textContent = cur() === "dark" ? "Light theme" : "Dark theme"; };
+  try { const t = localStorage.getItem(KEY); if (t === "light" || t === "dark") root.dataset.theme = t; } catch (e) {}
+  show();
+  btn.addEventListener("click", () => { const t = cur() === "dark" ? "light" : "dark"; root.dataset.theme = t; try { localStorage.setItem(KEY, t); } catch (e) {} show(); });
+  matchMedia("(prefers-color-scheme: dark)").addEventListener?.("change", show);
 })();
 </script>
   <div class="f area"><label for="area">Area</label><select id="area"></select></div>
