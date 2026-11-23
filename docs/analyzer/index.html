@@ -19,6 +19,7 @@
   --div-neg: #1c5cab; --div-neg-2: #86b6ef; --div-mid: #ecebe6; --div-pos-2: #ef9a8e; --div-pos: #b3261e;
   --seq-1: #f7b27a; --seq-2: #e3683a; --seq-3: #b5321e;
   --s-ov: #7a5aa6; --s-nd: #2f7d4f;
+  --fx-bo: #2a78d6; --fx-tr: #eb6834; --fx-te: #1baf7a; --fx-df: #eda100;
   --managed: #2f7d4f; --unmanaged: #d9822b; --partial: #9fb3a4; --absent: #c9c8c2;
   --chip: #e8e8e2; --shadow: 0 1px 2px rgba(20,20,20,.06);
   --font-display: "Archivo", "Arial Narrow", "Helvetica Neue", Arial, sans-serif;
@@ -33,6 +34,7 @@
   --div-neg: #5598e7; --div-neg-2: #2c4f7c; --div-mid: #34363a; --div-pos-2: #84403a; --div-pos: #e66767;
   --seq-1: #8a2d16; --seq-2: #d0562a; --seq-3: #f7a35f;
   --s-ov: #9a82cf; --s-nd: #3f9d63;
+  --fx-bo: #3987e5; --fx-tr: #d95926; --fx-te: #199e70; --fx-df: #c98500;
   --managed: #3f9d63; --unmanaged: #e0913a; --partial: #4e6355; --absent: #45474b;
   --chip: #26282b; --shadow: none; color-scheme: dark; } }
 :root[data-theme="dark"] {
@@ -42,6 +44,7 @@
   --div-neg: #5598e7; --div-neg-2: #2c4f7c; --div-mid: #34363a; --div-pos-2: #84403a; --div-pos: #e66767;
   --seq-1: #8a2d16; --seq-2: #d0562a; --seq-3: #f7a35f;
   --s-ov: #9a82cf; --s-nd: #3f9d63;
+  --fx-bo: #3987e5; --fx-tr: #d95926; --fx-te: #199e70; --fx-df: #c98500;
   --managed: #3f9d63; --unmanaged: #e0913a; --partial: #4e6355; --absent: #45474b;
   --chip: #26282b; --shadow: none; color-scheme: dark; }
 
@@ -49,58 +52,99 @@
 [hidden] { display: none !important; }
 html { scrollbar-color: var(--axis) transparent; accent-color: var(--accent); }
 ::selection { background: var(--accent-wash); color: var(--ink); }
-body { background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 14px; line-height: 1.45;
+body { background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 16px; line-height: 1.5;
   padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 0 56px; }
 .wrap { max-width: 1180px; margin: 0 auto; }
 h1, h2, h3 { font-family: var(--font-display); margin: 0; text-wrap: balance; }
-h1 { font-size: 26px; font-weight: 760; font-stretch: 80%; letter-spacing: -.01em; }
-h2 { font-size: 19px; font-weight: 700; font-stretch: 85%; }
-h3 { font-size: 13px; font-weight: 650; font-stretch: 90%; color: var(--ink-2); }
+h1 { font-size: 32px; font-weight: 760; font-stretch: 80%; letter-spacing: -.01em; }
+h2 { font-size: 30px; font-weight: 760; font-stretch: 82%; line-height: 1.1; }
+h3 { font-size: 16px; font-weight: 650; font-stretch: 90%; color: var(--ink); }
 .muted { color: var(--muted); }
 
 body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--bg); }
 .top { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 6; background: var(--bg); padding-block: 14px 12px; border-bottom: 1px solid var(--line);
   display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px 24px; }
 @media (max-width: 640px) { .top { position: static; } } /* three rows of controls: too tall to pin on a phone */
+/* site nav, shared by the three pages */
+.site { display: flex; flex-wrap: wrap; gap: 2px; align-items: center; }
+.site a { font: 600 13px/1 var(--font-body); color: var(--ink-2); text-decoration: none; padding: 0 10px; min-height: 32px; display: inline-flex; align-items: center; border-radius: 6px; }
+.site a:hover { color: var(--ink); background: var(--line); }
+.site a[aria-current="page"] { color: var(--ink); box-shadow: inset 0 -2px 0 var(--accent); border-radius: 0; }
 .title { display: grid; gap: 2px; }
-.sub { font-size: 12px; color: var(--muted); }
+.title .site { margin: 0 0 6px -10px; }
+.sub { font-size: 13.5px; color: var(--muted); }
 .sub a { color: var(--ink-2); text-decoration: underline; text-decoration-color: var(--axis); text-underline-offset: 2px; }
 .sub a:hover { color: var(--accent); }
 .sub a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 .ctls { display: flex; flex-wrap: wrap; gap: 8px; }
 .seg { display: inline-flex; background: var(--chip); border-radius: 999px; padding: 3px; }
-.seg button { font: 600 12.5px var(--font-body); color: var(--ink-2); background: transparent; border: 0; border-radius: 999px; padding: 6px 12px; cursor: pointer; }
+.seg button { font: 600 14px var(--font-body); color: var(--ink-2); background: transparent; border: 0; border-radius: 999px; padding: 8px 14px; cursor: pointer; }
 .seg button[aria-pressed="true"] { background: var(--surface); color: var(--ink); box-shadow: var(--shadow); }
 button:focus-visible, summary:focus-visible, th:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 .dot { display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-right: 6px; }
 
 .panel { background: var(--surface); border-radius: var(--r); padding: 14px 16px 12px; min-width: 0; box-shadow: var(--shadow); display: grid; gap: 6px; align-content: start; }
-.hero { display: grid; grid-template-columns: minmax(0, 1.75fr) minmax(0, 1fr); gap: 12px; margin-top: 18px; }
+.hero { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr); gap: 12px; margin-top: 18px; }
 .tiles { display: grid; gap: 12px; }
 .tile { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 4px 12px; }
-.tile .k { grid-column: 1 / -1; font-size: 12px; color: var(--muted); }
-.big { font-family: var(--font-display); font-stretch: 75%; font-weight: 760; font-size: 40px; line-height: 1; font-variant-numeric: tabular-nums; letter-spacing: -.01em; }
-.big small { font-size: 17px; font-weight: 650; color: var(--ink-2); margin-left: 2px; }
+.tile .k { grid-column: 1 / -1; font-size: 14px; color: var(--ink-2); }
+.big { font-family: var(--font-display); font-stretch: 75%; font-weight: 760; font-size: 46px; line-height: 1; font-variant-numeric: tabular-nums; letter-spacing: -.01em; }
+.big small { font-size: 19px; font-weight: 650; color: var(--ink-2); margin-left: 2px; }
 .tile svg { display: block; }
 @media (max-width: 900px) { .hero { grid-template-columns: minmax(0, 1fr); } }
 
-.band { margin-top: 30px; display: grid; gap: 12px; }
+.band { margin-top: 30px; display: grid; gap: 14px; }
+/* one section per paper goal: a header card with the question and the answer, then its parts */
+.goalsec { margin-top: 64px; display: grid; gap: 18px; scroll-margin-top: 150px; }
+.ghead { display: grid; gap: 14px; padding: 24px 26px; border-radius: var(--r); background: var(--surface); box-shadow: var(--shadow); border-top: 4px solid var(--accent); }
+.ghead .gno { font-family: var(--font-display); font-stretch: 80%; font-weight: 760; font-size: 17px; letter-spacing: .02em; color: var(--accent); }
+.ghead .lede { font-size: 18px; color: var(--ink); max-width: 70ch; margin: 0; text-wrap: pretty; }
+.kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; }
+.kpi { background: var(--bg); border-radius: 8px; padding: 12px 14px; display: grid; gap: 4px; align-content: start; }
+.kpi .n { font-family: var(--font-display); font-stretch: 75%; font-weight: 760; font-size: 40px; line-height: 1; font-variant-numeric: tabular-nums; }
+.kpi .t { font-size: 14.5px; color: var(--ink-2); }
+.part { display: grid; gap: 12px; margin-top: 10px; }
+.phead { display: grid; gap: 4px; }
+.phead h3 { font-size: 22px; font-weight: 720; font-stretch: 85%; }
+.phead p { margin: 0; font-size: 15.5px; color: var(--ink-2); max-width: 75ch; text-wrap: pretty; }
+.howto .dbody { font-size: 15px; color: var(--ink-2); max-width: 75ch; display: grid; gap: 8px; }
+.howto .dbody p { margin: 0; }
+.jump { display: flex; flex-wrap: wrap; gap: 6px; flex-basis: 100%; }
+.jump a { font: 600 14px/1 var(--font-body); color: var(--ink-2); text-decoration: none; padding: 9px 14px; border-radius: 999px; background: var(--chip); }
+.jump a:hover { color: var(--ink); background: var(--line); }
+.jump a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.donut { display: flex; flex-wrap: wrap; align-items: center; gap: 18px 26px; }
+.chart .donut svg { flex: none; width: 200px; height: 200px; }
+.donut ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 9px; flex: 1 1 190px; min-width: 0; }
+.donut li { display: grid; grid-template-columns: 14px minmax(0, 1fr) auto; align-items: center; gap: 2px 10px; font-size: 15px; }
+.donut li .sw { width: 14px; height: 14px; border-radius: 3px; margin: 0; }
+.donut li b { font-family: var(--font-data); font-weight: 500; font-variant-numeric: tabular-nums; }
+.donut li small { grid-column: 2 / -1; color: var(--muted); font-size: 13px; }
+.kpirow { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-top: 12px; }
+.kpirow a { color: inherit; text-decoration: none; border-radius: var(--r); display: grid; }
+.kpirow a:hover .panel { box-shadow: 0 0 0 1.5px var(--accent); }
+.kpirow a:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+@media (max-width: 900px) { .kpirow { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 520px) { .kpirow { grid-template-columns: minmax(0, 1fr); } .ghead { padding: 18px 16px; } h2 { font-size: 25px; } .goalsec { scroll-margin-top: 16px; } }
 .bhead { display: grid; gap: 6px; }
 .qrow { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 10px; }
-.goal { font-family: var(--font-data); font-size: 10.5px; letter-spacing: .08em; text-transform: uppercase; color: var(--accent); background: var(--accent-wash); border-radius: 4px; padding: 2px 7px; }
+.goal { font-family: var(--font-data); font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--accent); background: var(--accent-wash); border-radius: 4px; padding: 2px 7px; }
 .draft { font-family: var(--font-data); font-size: 10.5px; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-2); border: 1px dashed var(--axis); border-radius: 4px; padding: 1px 7px; }
 .answer { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 18px; }
-.answer .a { display: inline-flex; align-items: baseline; gap: 7px; font-size: 13.5px; color: var(--ink-2); }
-.answer .n { font-family: var(--font-display); font-stretch: 75%; font-weight: 760; font-size: 30px; color: var(--ink); line-height: 1; font-variant-numeric: tabular-nums; }
+.answer .a { display: inline-flex; align-items: baseline; gap: 8px; font-size: 16px; color: var(--ink-2); }
+.answer .n { font-family: var(--font-display); font-stretch: 75%; font-weight: 760; font-size: 44px; color: var(--ink); line-height: 1; font-variant-numeric: tabular-nums; }
+.bnote { margin: 2px 0 0; font-size: 16px; color: var(--ink-2); max-width: 75ch; text-wrap: pretty; }
+.bnote b { color: var(--ink); font-weight: 650; }
+.bhead .seg { margin-left: auto; flex-wrap: wrap; border-radius: 16px; }
 .grid2 { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 12px; }
 @media (max-width: 900px) { .grid2 { grid-template-columns: minmax(0, 1fr); } }
 .chart { min-width: 0; }
 .chart svg { display: block; width: 100%; height: auto; }
-.key { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 14px; font-size: 11.5px; color: var(--ink-2); }
+.key { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 14px; font-size: 13px; color: var(--ink-2); }
 .key .sw { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 5px; vertical-align: -1px; }
 
-svg text { fill: var(--ink-2); font-family: var(--font-body); font-size: 11px; }
-svg .ax text { fill: var(--muted); font-family: var(--font-data); font-size: 10px; }
+svg text { fill: var(--ink-2); font-family: var(--font-body); font-size: 12.5px; }
+svg .ax text { fill: var(--muted); font-family: var(--font-data); font-size: 11.5px; }
 svg .ax path, svg .ax line { stroke: var(--axis); }
 svg .grid line { stroke: var(--line); }
 svg .zero { stroke: var(--axis); }
@@ -112,37 +156,37 @@ svg .country { stroke: var(--border); stroke-width: .5; cursor: pointer; }
 svg .country:hover { stroke: var(--ink); stroke-width: 1.2; }
 
 details { background: var(--surface); border-radius: var(--r); box-shadow: var(--shadow); }
-summary { cursor: pointer; padding: 9px 16px; font-weight: 600; font-size: 12.5px; color: var(--muted); list-style: none; }
+summary { cursor: pointer; padding: 11px 16px; font-weight: 600; font-size: 14px; color: var(--ink-2); list-style: none; }
 summary::-webkit-details-marker { display: none; }
 summary::before { content: "+"; font-family: var(--font-data); display: inline-block; width: 15px; }
 details[open] summary::before { content: "\2212"; }
 .dbody { padding: 0 16px 14px; }
 .tablewrap { overflow-x: auto; max-height: 420px; overflow-y: auto; }
-.alpha { display: inline-flex; align-items: center; gap: 8px; background: var(--chip); border-radius: 999px; padding: 4px 12px; font-size: 12px; color: var(--ink-2); }
+.alpha { display: inline-flex; align-items: center; gap: 8px; background: var(--chip); border-radius: 999px; padding: 6px 14px; font-size: 13.5px; color: var(--ink-2); }
 .alpha input { width: 110px; accent-color: var(--accent); }
 .alpha output { font-family: var(--font-data); font-size: 12px; color: var(--ink); min-width: 56px; }
-.pick { font: 600 12px var(--font-body); color: var(--ink); background: var(--chip); border: 0; border-radius: 999px; padding: 5px 10px; cursor: pointer; }
+.pick { font: 600 13.5px var(--font-body); color: var(--ink); background: var(--chip); border: 0; border-radius: 999px; padding: 5px 10px; cursor: pointer; }
 .pick:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 .search { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; font-size: 12px; }
 .search input { font: 13px var(--font-body); color: var(--ink); background: var(--bg); border: 1px solid var(--line); border-radius: 999px;
   padding: 6px 12px; width: min(280px, 100%); }
 .search input:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
-table { border-collapse: collapse; width: 100%; font-size: 12.5px; }
+table { border-collapse: collapse; width: 100%; font-size: 13.5px; }
 th, td { text-align: right; padding: 5px 8px; border-bottom: 1px solid var(--line); white-space: nowrap; }
 th:first-child, td:first-child { text-align: left; }
-th { position: sticky; top: 0; background: var(--surface); font-weight: 600; color: var(--muted); font-size: 11.5px; cursor: pointer; user-select: none; }
+th { position: sticky; top: 0; background: var(--surface); font-weight: 600; color: var(--muted); font-size: 12.5px; cursor: pointer; user-select: none; }
 td { font-family: var(--font-data); font-variant-numeric: tabular-nums; }
 td:first-child { font-family: var(--font-body); }
 td .link { color: var(--ink); cursor: pointer; text-decoration: underline; text-decoration-color: var(--axis); text-underline-offset: 2px; }
 td .link:hover { color: var(--accent); }
 .sig { color: var(--accent); }
-.methods { font-size: 13px; color: var(--ink-2); max-width: 82ch; display: grid; gap: 8px; }
+.methods { font-size: 15px; color: var(--ink-2); max-width: 82ch; display: grid; gap: 8px; }
 .methods p { margin: 0; }
 
 #tip { position: fixed; pointer-events: none; z-index: 30; background: var(--surface); color: var(--ink); border: 1px solid var(--line);
-  border-radius: 6px; padding: 7px 9px; font-size: 12px; box-shadow: 0 4px 14px rgba(0,0,0,.14); max-width: 260px; }
+  border-radius: 6px; padding: 8px 10px; font-size: 13.5px; box-shadow: 0 4px 14px rgba(0,0,0,.14); max-width: 300px; }
 #tip .t { font-weight: 650; margin-bottom: 2px; }
-#tip .r { font-family: var(--font-data); font-size: 11.5px; color: var(--ink-2); }
+#tip .r { font-family: var(--font-data); font-size: 12.5px; color: var(--ink-2); }
 
 .drawer { position: fixed; top: 0; right: 0; bottom: 0; width: min(430px, 100%); background: var(--surface); z-index: 20;
   border-left: 1px solid var(--line); box-shadow: -8px 0 24px rgba(0,0,0,.14); overflow-y: auto;
@@ -155,17 +199,20 @@ td .link:hover { color: var(--accent); }
 .dstats .k { font-size: 11px; color: var(--muted); }
 .dstats .v { font-family: var(--font-display); font-stretch: 80%; font-weight: 720; font-size: 20px; font-variant-numeric: tabular-nums; }
 .chipx { font-size: 11.5px; background: var(--chip); border-radius: 999px; padding: 2px 9px; color: var(--ink-2); justify-self: start; }
-.facts { display: grid; grid-template-columns: auto 1fr; gap: 4px 14px; font-size: 12.5px; margin: 0; }
+.facts { display: grid; grid-template-columns: auto 1fr; gap: 5px 14px; font-size: 14px; margin: 0; }
 .facts dt { color: var(--muted); }
 .facts dd { margin: 0; text-align: right; font-family: var(--font-data); font-variant-numeric: tabular-nums; }
 .loading { padding: 40px 0; color: var(--muted); }
+.fxbar { display: flex; gap: 2px; height: 12px; border-radius: 3px; overflow: hidden; }
+.fxbar span { display: block; min-width: 2px; }
 </style>
 
 <div class="wrap">
   <header class="top">
     <div class="title">
+      <nav class="site" aria-label="Site"><a href="https://rsl-slu.github.io/wildfire/">Dashboard</a><a href="https://rsl-slu.github.io/wildfire/explore.html">Explorer</a><a href="https://rsl-slu.github.io/wildfire/analyzer/" aria-current="page">Country analyzer</a></nav>
       <h1>Forest fire trends by country</h1>
-      <div class="sub">Policy paper review · GFED5.1 · <a href="https://rsl-slu.github.io/wildfire/">Fire carbon dashboard</a></div>
+      <div class="sub">Policy paper review · GFED5.1</div>
     </div>
     <div class="ctls" role="toolbar" aria-label="Analysis settings">
       <div class="seg" id="ser">
@@ -180,6 +227,7 @@ td .link:hover { color: var(--accent); }
         <input type="range" id="alpha" min="0.01" max="0.2" step="0.01" value="0.05">
         <output id="alpha-v" for="alpha">p &lt; 0.05</output></label>
     </div>
+    <nav class="jump" aria-label="Sections"><a href="#overview">Overview</a><a href="#map">Map</a><a href="#goal1">Goal 1 · Rising?</a><a href="#goal2">Goal 2 · Drivers</a><a href="#goal3">Goal 3 · Unmanaged land</a><a href="#methods">Methods</a></nav>
   </header>
   <div id="app"><p class="loading">Loading country series…</p></div>
 </div>
@@ -203,7 +251,10 @@ const ST = {
 const MIN_MEAN = 1.0;
 const RM = matchMedia("(prefers-reduced-motion: reduce)").matches;
 let DUR = RM ? 0 : 650;
-const state = { ser: "nd", per: 2025, top1: 20, top2: 10, alpha: 0.05 };
+const state = { ser: "nd", per: 2025, top1: 20, top2: 10, top3: 10, layer: "trend", alpha: 0.05 };
+const FX = [{ k: "bo", label: "Boreal forest", c: "var(--fx-bo)" }, { k: "tr", label: "Tropical forest", c: "var(--fx-tr)" },
+  { k: "te", label: "Temperate forest", c: "var(--fx-te)" }, { k: "df", label: "Deforestation", c: "var(--fx-df)" }];
+const NRT0 = 2023; // first year from GFED5.1 NRT (VIIRS); earlier years are GFED5.1
 function pickHtml(id, val, n) {
   return `<select class="pick" id="${id}" aria-label="How many countries">${[[10, "Top 10"], [20, "Top 20"], [0, `All (${n})`]]
     .map(([v, t]) => `<option value="${v}"${v === val ? " selected" : ""}>${t}</option>`).join("")}</select>`;
@@ -219,7 +270,11 @@ function theilSen(x, y) {
   const sl = [];
   for (let i = 0; i < x.length; i++) for (let j = i + 1; j < x.length; j++) sl.push((y[j] - y[i]) / (x[j] - x[i]));
   const slope = median(sl);
-  return { slope, icpt: median(y) - slope * median(x) };
+  // 95% confidence interval of the slope (Sen 1968, the same ranks as scipy.stats.theilslopes)
+  sl.sort((a, b) => a - b);
+  const n = y.length, nt = sl.length, sd = Math.sqrt(n * (n - 1) * (2 * n + 5) / 18);
+  const lo = sl[Math.max(Math.round((nt - 1.96 * sd) / 2) - 1, 0)], hi = sl[Math.min(Math.round((nt + 1.96 * sd) / 2), nt - 1)];
+  return { slope, lo, hi, icpt: median(y) - slope * median(x) };
 }
 function erf(x) { const s = Math.sign(x); x = Math.abs(x); const t = 1 / (1 + 0.3275911 * x);
   return s * (1 - (((((1.061405429 * t - 1.453152027) * t) + 1.421413741) * t - 0.284496736) * t + 0.254829592) * t * Math.exp(-x * x)); }
@@ -237,9 +292,9 @@ const mean = a => a.reduce((s, v) => s + v, 0) / a.length;
 function trend(x, y) {
   const m = mean(y);
   if (!(m > 0)) return { mean: 0, slope: NaN, pct: NaN, p: NaN, sig: false };
-  const { slope, icpt } = theilSen(x, y), p = mannKendallP(y);
+  const { slope, lo, hi, icpt } = theilSen(x, y), p = mannKendallP(y);
   const sd = Math.sqrt(y.reduce((s, v) => s + (v - m) ** 2, 0) / (y.length - 1));
-  return { mean: m, slope, icpt, pct: 100 * slope / m, p, sig: p < state.alpha, cv: sd / m };
+  return { mean: m, slope, lo, hi, icpt, pct: 100 * slope / m, p, sig: p < state.alpha, cv: sd / m };
 }
 function nFor(vals, q) { const tot = d3.sum(vals); let c = 0;
   for (let i = 0; i < vals.length; i++) { c += vals[i]; if (c / tot >= q - 1e-12) return i + 1; } return vals.length; }
@@ -247,18 +302,31 @@ function nFor(vals, q) { const tot = d3.sum(vals); let c = 0;
 // ---------- compute everything for the current switches ----------
 function compute() {
   const k = D.years.indexOf(state.per) + 1, yrs = D.years.slice(0, k), o = state.ser === "nd" ? "ov" : "nd";
+  const h = Math.floor(k / 2), y1s = yrs.slice(0, h), y2s = yrs.slice(h); // first and second half of the period
+  const boot = D.boot[state.ser + state.per];
   const rows = D.countries.map(c => {
     const y = c[state.ser].slice(0, k), t = trend(yrs, y), to = trend(yrs, c[o].slice(0, k));
     const ovSum = d3.sum(c.ov.slice(0, k)), ndSum = d3.sum(c.nd.slice(0, k));
+    const m1 = mean(y.slice(0, h)), m2 = mean(y.slice(h));
+    const fx = {}, fx_abs = {}; FX.forEach(f => { fx_abs[f.k] = c.fx[f.k].slice(0, k); fx[f.k] = ovSum > 0 ? d3.sum(fx_abs[f.k]) / ovSum : 0; });
+    // map colour: the largest of the three forest classes (three hues stay apart for colour-blind readers on a map)
+    const dom = ovSum > 0 ? FX.slice(0, 3).reduce((a, f) => fx[f.k] > fx[a.k] ? f : a) : null;
+    const bt = boot.c[c.iso] || [0, 0];
     return { ...c, y, t, to, reliable: ovSum / k >= MIN_MEAN, deforShare: ovSum > 0 ? 1 - ndSum / ovSum : 0,
-      unmanShare: c.man != null && c.unman != null && c.man + c.unman > 0 ? c.unman / (c.man + c.unman) : null };
+      unmanShare: c.man != null && c.unman != null && c.man + c.unman > 0 ? c.unman / (c.man + c.unman) : null,
+      m1, m2, d: m2 - m1, rch: m1 > 0 ? 100 * (m2 / m1 - 1) : NaN, t1: trend(y1s, y.slice(0, h)), t2: trend(y2s, y.slice(h)),
+      fx, fx_abs, dom, f50: bt[0], f90: bt[1] };
   });
   const byIso = new Map(rows.map(r => [r.iso, r]));
-  const wy = D.world[state.ser].slice(0, k), world = { y: wy, other: D.world[o].slice(0, k), t: trend(yrs, wy) };
+  const wy = D.world[state.ser].slice(0, k), world = { y: wy, other: D.world[o].slice(0, k), t: trend(yrs, wy), m1: mean(wy.slice(0, h)), m2: mean(wy.slice(h)) };
   const rising = rows.filter(r => r.t.slope > 0).sort((a, b) => b.t.slope - a.t.slope);
-  const rv = rising.map(r => r.t.slope), totRise = d3.sum(rv);
+  const rv = rising.map(r => r.t.slope), totRise = d3.sum(rv), fall = d3.sum(rows.filter(r => r.t.slope < 0), r => r.t.slope);
   let c = 0; rising.forEach(r => { c += r.t.slope; r.cum = c / totRise; });
   const n = { 50: nFor(rv, .5), 75: nFor(rv, .75), 90: nFor(rv, .9) };
+  // halves: who holds the increase between the first and the second half
+  const inc = rows.filter(r => r.d > 0).sort((a, b) => b.d - a.d), iv = inc.map(r => r.d), totInc = d3.sum(iv);
+  c = 0; inc.forEach(r => { c += r.d; r.icum = c / totInc; });
+  const nInc = { 50: nFor(iv, .5), 75: nFor(iv, .75), 90: nFor(iv, .9) };
   const annual = yrs.map((yr, i) => {
     const ex = rows.map(r => ({ r, e: Math.max(0, r.y[i] - r.t.mean) })).filter(d => d.e > 0).sort((a, b) => b.e - a.e);
     const ev = ex.map(d => d.e);
@@ -267,7 +335,7 @@ function compute() {
   const byStatus = {}; Object.keys(ST).forEach(s => byStatus[s] = 0);
   rising.forEach(r => byStatus[r.st] += r.t.slope);
   const rel = rows.filter(r => r.reliable);
-  return { k, yrs, rows, byIso, world, rising, totRise, n, annual, byStatus, rel,
+  return { k, yrs, h, y1s, y2s, boot, rows, byIso, world, rising, totRise, fall, n, inc, totInc, nInc, annual, byStatus, rel,
     up: rel.filter(r => r.t.sig && r.t.pct > 0), down: rel.filter(r => r.t.sig && r.t.pct < 0) };
 }
 
@@ -293,6 +361,13 @@ function keepIfClear(text, placed) {
   if (placed.some(p => b.x < p.x + p.width + pad && b.x + b.width + pad > p.x && b.y < p.y + p.height && b.y + b.height > p.y)) { text.remove(); return false; }
   placed.push(b); return true;
 }
+// shade the GFED5.1 NRT years on a band-scale year axis
+function nrtBand(s, x, y0, y1, label = true) {
+  if (!x.domain().includes(NRT0)) return;
+  const last = x.domain()[x.domain().length - 1], gap = x.step() * x.paddingInner() / 2, x0 = x(NRT0) - gap, x1 = x(last) + x.bandwidth() + gap;
+  s.append("rect").attr("x", x0).attr("y", y0).attr("width", x1 - x0).attr("height", y1 - y0).attr("fill", "var(--line)").attr("opacity", .7);
+  if (label) s.append("text").attr("x", (x0 + x1) / 2).attr("y", y0 + 11).attr("text-anchor", "middle").style("fill", "var(--muted)").style("font-family", "var(--font-data)").style("font-size", "11px").text("NRT");
+}
 function drawLine(path) { if (RM) return; const L = path.node().getTotalLength();
   path.attr("stroke-dasharray", `${L} ${L}`).attr("stroke-dashoffset", L).transition().duration(DUR * 1.4).ease(d3.easeCubicOut).attr("stroke-dashoffset", 0)
     .on("end", function () { d3.select(this).attr("stroke-dasharray", null); }); }
@@ -302,100 +377,190 @@ function nameLabel(g, r, x, y, anchor = "end") {
   g.append("text").attr("class", "lbl link").attr("x", x).attr("y", y).attr("dy", "0.32em").attr("text-anchor", anchor).text(short(r.name)).on("click", () => openCountry(r.iso)); }
 const ttCountry = r => `<div class="t">${r.name}</div><div class="r">${sgn(r.t.pct, 2)}%/yr · p ${pfmt(r.t.p)}</div><div class="r">mean ${fmt(r.t.mean, 2)} Tg C/yr</div>`;
 
+// ---------- page structure helpers ----------
+function goalSection(id, no, q, lede, kpis) {
+  const s = el("section", { class: "goalsec", id });
+  s.innerHTML = `<div class="ghead"><span class="gno">${no}</span><h2>${q}</h2>${lede ? `<p class="lede">${lede}</p>` : ""}
+    <div class="kpis">${kpis.map(([n, t]) => `<div class="kpi"><span class="n">${n}</span><span class="t">${t}</span></div>`).join("")}</div></div>`;
+  return s;
+}
+function part(title, text) {
+  const p = el("div", { class: "part" });
+  p.innerHTML = `<div class="phead"><h3>${title}</h3>${text ? `<p>${text}</p>` : ""}</div>`;
+  return p;
+}
+function howTo(paras) {
+  const d = el("details", { class: "howto" });
+  d.innerHTML = `<summary>How to read this</summary><div class="dbody">${paras.map(t => `<p>${t}</p>`).join("")}</div>`;
+  return d;
+}
+const panel = (title, id, key = "") => `<div class="panel"><div class="qrow" style="justify-content:space-between"><h3>${title}</h3>${key}</div><div class="chart" id="${id}"></div></div>`;
+
 // ---------- render ----------
 function render() {
   R = compute();
   const app = document.getElementById("app"); app.innerHTML = "";
-  const P = `2002–${state.per}`, unm = R.byStatus.unmanaged / R.totRise;
+  const P = `2002–${state.per}`, H1 = `${R.y1s[0]}–${R.y1s[R.y1s.length - 1]}`, H2 = `${R.y2s[0]}–${state.per}`;
+  const other = SER_NAME[state.ser === "nd" ? "ov" : "nd"], B = D.bootB, col = serColor(state.ser);
+  const sh = s => R.byStatus[s] / R.totRise, wch = 100 * (R.world.m2 / R.world.m1 - 1);
+  const half = R.rising.slice(0, R.n[50]), sure = R.rows.filter(r => r.f90 > 0).sort((a, b) => b.f90 - a.f90 || b.f50 - a.f50), core = sure.filter(r => r.f90 >= .8);
+  const names = a => a.map(r => short(r.name)).join(", ").replace(/, ([^,]*)$/, " and $1");
 
-  // hero
-  const hero = el("div", { class: "hero" });
-  hero.innerHTML = `
-    <div class="panel"><div class="qrow" style="justify-content:space-between"><h3>World forest fire carbon, Tg C per year</h3>
-      <span class="key"><span><span class="sw" style="background:${serColor(state.ser)}"></span>${SER_NAME[state.ser]}</span><span><span class="sw" style="background:var(--muted);height:2px"></span>${SER_NAME[state.ser === "nd" ? "ov" : "nd"]}</span><span><span class="sw" style="background:var(--accent);height:2px"></span>trend</span></span></div>
-      <div class="chart" id="cw"></div></div>
-    <div class="tiles">
-      <div class="panel tile"><div class="k">Significant country trends</div><div class="big">${R.up.length}<small>up</small> ${R.down.length}<small>down</small></div><div id="t1"></div></div>
-      <div class="panel tile"><div class="k">Countries making up 50 · 75 · 90% of the rise</div><div class="big">${R.n[50]} · ${R.n[75]} · ${R.n[90]}</div><div id="t2"></div></div>
-      <div class="panel tile"><div class="k">Rise in countries reporting unmanaged forest</div><div class="big">${fmt(100 * unm, 0)}<small>%</small></div><div id="t3"></div></div>
+  // ---- overview: world series, forest-type donut, four headline cards, map
+  const ov = el("section", { id: "overview" });
+  ov.innerHTML = `<div class="hero">
+      ${panel("World forest fire carbon, Tg C per year", "cw", `<span class="key"><span><span class="sw" style="background:${col}"></span>${SER_NAME[state.ser]}</span><span><span class="sw" style="background:var(--muted);height:2px"></span>${other}</span><span><span class="sw" style="background:var(--accent);height:2px"></span>trend</span></span>`)}
+      ${panel(`Which forests burn, ${P}`, "cfx")}
+    </div>
+    <div class="kpirow">
+      <a href="#goal1"><div class="panel tile"><div class="k">Worldwide trend</div><div class="big">${sgn(R.world.t.pct, 1)}<small>%/yr</small></div><div id="t0"></div></div></a>
+      <a href="#goal1"><div class="panel tile"><div class="k">Countries with a significant trend</div><div class="big">${R.up.length}<small>up</small> ${R.down.length}<small>down</small></div><div id="t1"></div></div></a>
+      <a href="#goal2"><div class="panel tile"><div class="k">Countries making up 50 · 75 · 90% of the rise</div><div class="big">${R.n[50]}·${R.n[75]}·${R.n[90]}</div><div id="t2"></div></div></a>
+      <a href="#goal3"><div class="panel tile"><div class="k">Rise in countries reporting unmanaged forest</div><div class="big">${fmt(100 * sh("unmanaged"), 0)}<small>%</small></div><div id="t3"></div></div></a>
     </div>`;
-  app.append(hero);
-  drawWorld(hero.querySelector("#cw")); drawTile1(hero.querySelector("#t1")); drawTile2(hero.querySelector("#t2")); drawTile3(hero.querySelector("#t3"));
+  app.append(ov);
+  drawWorld(ov.querySelector("#cw")); drawTile0(ov.querySelector("#t0")); drawTile1(ov.querySelector("#t1")); drawTile2(ov.querySelector("#t2")); drawTile3(ov.querySelector("#t3"));
+  const wfx = FX.map(f => ({ label: f.label, c: f.c, v: d3.sum(R.rows, r => d3.sum(r.fx_abs[f.k])) }));
+  drawDonut(ov.querySelector("#cfx"), wfx, [fmt(d3.sum(wfx, d => d.v) / R.k, 0), "Tg C per year"]);
 
-  // Goal 1
-  const b1 = band("Goal 1", "How are national forest fire emissions changing?", [
-    [sgn(R.world.t.pct, 1) + "%", `per year worldwide, ${P}${R.world.t.sig ? " (p " + pfmt(R.world.t.p) + ")" : " (not significant)"}`],
-    [R.up.length, "countries rise significantly"], [R.down.length, "fall significantly"]]);
-  b1.insertAdjacentHTML("beforeend", `<div class="panel"><div class="qrow" style="justify-content:space-between"><h3>Trend per country, %/yr</h3>
-    <span class="key" id="mapkey"></span></div><div class="chart map" id="c1m"></div></div>
-    <div class="panel"><div class="qrow" style="justify-content:space-between"><div class="qrow"><h3>Largest forest fire emitters, trend %/yr</h3>${pickHtml("top1", state.top1, R.rel.length)}</div>
-    <span class="key"><span><span class="dot" style="background:${serColor(state.ser)}"></span>p &lt; ${state.alpha}</span><span><span class="dot" style="border:1.5px solid ${serColor(state.ser)}"></span>not significant</span><span><span class="sw" style="background:var(--muted);width:2px"></span>${SER_NAME[state.ser === "nd" ? "ov" : "nd"]}</span></span></div><div class="chart" id="c1"></div></div>`);
-  app.append(b1);
-  drawMap(b1.querySelector("#c1m"), b1.querySelector("#mapkey"));
-  const c1 = b1.querySelector("#c1"), redraw1 = () => { c1.innerHTML = ""; drawDots(c1); };
-  redraw1(); bindPick(b1, "top1", "top1", redraw1);
-  b1.append(tableDetails("Statistics: all countries", R.rows.filter(r => r.t.mean > 0),
-    [["Country", r => r.name, "s"], ["Mean, Tg C/yr", r => r.t.mean, 2], ["Trend, Tg C/yr²", r => r.t.slope, 3], ["Trend, %/yr", r => r.t.pct, 2],
-     ["p", r => r.t.p, "p"], ["CV", r => r.t.cv, 2], ["Deforestation, %", r => 100 * r.deforShare, 0], ["≥ 1 Tg C/yr", r => r.reliable ? "yes" : "", "s"]], 1));
+  const map = el("section", { class: "goalsec", id: "map" });
+  map.innerHTML = `<div class="phead"><h3>Map</h3><p>Pick a layer. Hover a country for all its numbers; click it for its time series.</p></div>
+    <div class="seg" id="layer" role="group" aria-label="Map layer" style="justify-self:start;flex-wrap:wrap;border-radius:16px">${LAYERS.map(l => `<button type="button" data-v="${l.k}" aria-pressed="${state.layer === l.k}">${l.label}</button>`).join("")}</div>
+    <div class="panel"><div class="qrow" style="justify-content:space-between"><h3 id="maptitle"></h3><span class="key" id="mapkey"></span></div><div class="chart map" id="cm"></div></div>`;
+  app.append(map);
+  const cm = map.querySelector("#cm"), redrawMap = () => { cm.innerHTML = ""; drawMap(cm, map.querySelector("#mapkey"), map.querySelector("#maptitle")); };
+  redrawMap();
+  map.querySelectorAll("#layer button").forEach(b => b.addEventListener("click", () => {
+    state.layer = b.dataset.v; map.querySelectorAll("#layer button").forEach(x => x.setAttribute("aria-pressed", String(x === b))); redrawMap(); }));
 
-  // Goal 2b
-  const b2 = band("Goal 2b", "Which countries drive the rise?", [
-    [R.n[50], `countries make up half (${R.rising.slice(0, R.n[50]).map(r => short(r.name)).join(", ")})`], [R.n[75], "make up 75%"], [R.n[90], "make up 90%"]]);
-  b2.insertAdjacentHTML("beforeend", `<div class="grid2">
-    <div class="panel"><h3>Cumulative share of the summed rise</h3><div class="chart" id="c2a"></div></div>
-    <div class="panel"><div class="qrow" style="justify-content:space-between"><div class="qrow"><h3>Largest rising trends, Tg C/yr per year</h3>${pickHtml("top2", state.top2, R.rising.length)}</div><span class="key"><span><span class="sw" style="background:${serColor(state.ser)}"></span>p &lt; ${state.alpha}</span></span></div><div class="chart" id="c2b"></div></div></div>`);
-  app.append(b2);
-  drawCum(b2.querySelector("#c2a"));
-  const c2b = b2.querySelector("#c2b"), redraw2 = () => { c2b.innerHTML = ""; drawRankBars(c2b); };
-  redraw2(); bindPick(b2, "top2", "top2", redraw2);
-  b2.append(tableDetails("Statistics: rising countries", R.rising,
-    [["Country", r => r.name, "s"], ["Trend, Tg C/yr²", r => r.t.slope, 3], ["Trend, %/yr", r => r.t.pct, 2], ["p", r => r.t.p, "p"],
-     ["Cumulative, %", r => 100 * r.cum, 1], ["UNFCCC", r => ST[r.st].label, "s"]], 1));
+  // ---- Goal 1
+  const g1 = goalSection("goal1", "Goal 1", "Is forest fire carbon rising?",
+    `Yes: ${sgn(R.world.t.pct, 1)}% a year worldwide${R.world.t.sig ? "" : " (not significant)"}, and ${sgn(wch, 0)}% more in ${H2} than in ${H1}.`,
+    [[sgn(R.world.t.pct, 1) + "%", `per year, ${P}${R.world.t.sig ? ` (p ${pfmt(R.world.t.p)})` : ""}`], [sgn(wch, 0) + "%", `${H2} against ${H1}`],
+     [`${R.up.length} / ${R.down.length}`, "countries rising / falling significantly"]]);
+  const p1a = part("Trend of each country", `The ${state.top1 || "all"} largest emitters, fastest rise on top. Filled dot = significant trend.`);
+  p1a.insertAdjacentHTML("beforeend", `<div class="panel"><div class="qrow" style="justify-content:space-between">${pickHtml("top1", state.top1, R.rel.length)}
+    <span class="key"><span><span class="dot" style="background:${col}"></span>significant</span><span><span class="dot" style="border:1.5px solid ${col}"></span>not significant</span><span><span class="sw" style="background:var(--muted);width:2px"></span>${other}</span></span></div><div class="chart" id="c1"></div></div>`);
+  const p1b = part("First half against second half", `Average per year in ${H1} and in ${H2}. No trend model needed.`);
+  p1b.insertAdjacentHTML("beforeend", `<div class="grid2">${panel("World", "chA", `<span class="key"><span><span class="sw" style="background:var(--ink);height:2px"></span>half average</span></span>`)}
+    <div class="panel"><div class="qrow" style="justify-content:space-between"><div class="qrow"><h3>Largest changes, Tg C/yr</h3>${pickHtml("top3", state.top3, R.rel.length)}</div><span class="key"><span><span class="dot" style="border:1.5px solid var(--ink-2)"></span>${H1}</span><span><span class="dot" style="background:${col}"></span>${H2}</span></span></div><div class="chart" id="chB"></div></div></div>`);
+  g1.append(p1a, p1b);
+  g1.append(howTo([
+    `<b>Significant</b> means the rise or fall is steady enough that it is unlikely to come from a few unusual fire years alone (Mann–Kendall p &lt; ${state.alpha}). ${R.rel.length} countries emit at least ${MIN_MEAN} Tg C/yr and are tested; about ${fmt(R.rel.length * state.alpha, 1)} would pass by chance.`,
+    `<b>Trend in %/yr</b> is the Theil–Sen slope divided by the country's mean, so small and large emitters compare on the same scale. The number left of each name is its size rank.`,
+    `<b>Halves:</b> of the ${R.rel.length} tested countries, ${R.rel.filter(r => r.rch >= 25).length} grew by a quarter or more and ${R.rel.filter(r => r.rch <= -25).length} shrank by a quarter or more.`,
+    state.per >= NRT0 ? `<b>2023–${state.per}</b> come from GFED5.1 NRT (shaded). The 2002–2022 switch at the top gives the GFED5.1-only result.` : `GFED5.1 only, 2002–2022.`]));
+  g1.append(tableDetails("Table: trend per country", R.rows.filter(r => r.t.mean > 0),
+    [["Country", r => r.name, "s"], ["Mean, Tg C/yr", r => r.t.mean, 2], ["Trend, Tg C/yr²", r => r.t.slope, 3], ["95% CI low", r => r.t.lo, 3], ["95% CI high", r => r.t.hi, 3], ["Trend, %/yr", r => r.t.pct, 2],
+     ["p", r => r.t.p, "p"], ["CV", r => r.t.cv, 2], ...FX.map(f => [`${f.label}, %`, r => 100 * r.fx[f.k], 0]), ["≥ 1 Tg C/yr", r => r.reliable ? "yes" : "", "s"]], 1));
+  g1.append(tableDetails("Table: first and second half", R.rows.filter(r => r.t.mean > 0),
+    [["Country", r => r.name, "s"], [`Mean ${H1}`, r => r.m1, 2], [`Mean ${H2}`, r => r.m2, 2], ["Change, Tg C/yr", r => r.d, 2], ["Change, %", r => r.rch, 0],
+     ["Share of increase, %", r => r.d > 0 ? 100 * r.d / R.totInc : null, 1], [`Trend ${H1}, %/yr`, r => r.t1.pct, 1], [`p ${H1}`, r => r.t1.p, "p"], [`Trend ${H2}, %/yr`, r => r.t2.pct, 1], [`p ${H2}`, r => r.t2.p, "p"]], 3));
+  app.append(g1);
+  const c1 = g1.querySelector("#c1"), redraw1 = () => { c1.innerHTML = ""; drawDots(c1); };
+  redraw1(); bindPick(g1, "top1", "top1", () => { p1a.querySelector(".phead p").innerHTML = `The ${state.top1 || "all"} largest emitters, fastest rise on top. Filled dot = significant trend.`; redraw1(); });
+  drawHalvesWorld(g1.querySelector("#chA"));
+  const chB = g1.querySelector("#chB"), redrawH = () => { chB.innerHTML = ""; drawDumbbell(chB); };
+  redrawH(); bindPick(g1, "top3", "top3", redrawH);
 
-  // Goal 2a
-  const med = d3.median(R.annual, a => a.n50), peak = R.annual.reduce((a, b) => b.tot > a.tot ? b : a);
-  const b3 = band("Goal 2a", "Which countries drive year-to-year swings?", [
-    [fmt(med, 0), "countries make half of a typical year's above-normal emissions"], [peak.yr, `largest excess, led by ${peak.top.slice(0, 2).map(r => short(r.name)).join(" and ")}`]], true);
-  b3.insertAdjacentHTML("beforeend", `<div class="grid2">
-    <div class="panel"><h3>Countries needed each year</h3><div class="chart" id="c3a"></div></div>
-    <div class="panel"><div class="qrow" style="justify-content:space-between"><h3>Each year against the country's mean</h3><span class="key" id="heatkey"></span></div><div class="chart" id="c3b"></div></div></div>`);
-  app.append(b3);
-  drawAnnualCounts(b3.querySelector("#c3a")); drawHeat(b3.querySelector("#c3b"), b3.querySelector("#heatkey"));
-  b3.append(tableDetails("Statistics: year by year", R.annual,
+  // ---- Goal 2
+  const g2 = goalSection("goal2", "Goal 2", "Which countries drive the rise?",
+    `${names(half)} make up half of it. In ${fmt(B, 0)} reruns with reshuffled years, ${names(core)} are drivers at least 80% of the time.`,
+    [[`${R.n[50]}·${R.n[75]}·${R.n[90]}`, "countries make up 50 · 75 · 90% of the rise"], [core.length, "countries are drivers in 80%+ of reruns"],
+     [`${R.boot.n[90][0]}–${R.boot.n[90][2]}`, "countries needed for 90%, across reruns"]]);
+  const p2a = part("Goal 2b · Who adds the most", `Each rising country's trend in Tg C per year, added up. Ranked by tonnes, not by %.`);
+  p2a.insertAdjacentHTML("beforeend", `<div class="grid2">${panel(`Share of the summed rise (+${fmt(R.totRise, 1)} Tg C/yr each year)`, "c2d")}
+    <div class="panel"><div class="qrow" style="justify-content:space-between"><div class="qrow"><h3>Largest rising trends</h3>${pickHtml("top2", state.top2, R.rising.length)}</div><span class="key"><span><span class="sw" style="background:${col}"></span>significant</span><span><span class="sw" style="border:1.4px solid ${col}"></span>not significant</span><span><span class="sw" style="background:var(--ink-2);width:12px;height:2px"></span>95% CI</span></span></div><div class="chart" id="c2b"></div></div></div>`);
+  const p2s = part("How sure are we?", `We reran the ranking ${fmt(B, 0)} times, each time on a random redraw of the ${R.k} years.`);
+  p2s.insertAdjacentHTML("beforeend", `<div class="grid2">${panel("How often each country is a driver", "cs1", `<span class="key"><span><span class="sw" style="background:var(--accent);opacity:.55"></span>in the 90% group</span><span><span class="sw" style="background:var(--seq-3)"></span>in the 50% group</span></span>`)}
+    ${panel("Countries needed for 90% of the rise", "cs2")}</div>`);
+  const p2y = part("Goal 2a · Year-to-year swings <span class=\"draft\">Draft definition</span>", "How few countries hold most of each year's above-normal fire carbon.");
+  p2y.insertAdjacentHTML("beforeend", `<div class="grid2">${panel("Countries needed each year", "c3a")}${panel("Each year against the country's own mean", "c3b", `<span class="key" id="heatkey"></span>`)}</div>`);
+  g2.append(p2a, p2s, p2y);
+  g2.append(howTo([
+    `<b>Summed rise:</b> the ${R.rising.length} countries with an upward trend add +${fmt(R.totRise, 2)} Tg C/yr each year; falling countries take off ${fmt(-R.fall, 2)}. A big emitter with a small % trend can add more tonnes than a small emitter growing fast, which is why Russia ranks above DR Congo here.`,
+    `<b>Reruns (bootstrap):</b> with ${R.k} years, one extreme season can reorder the ranking. Each rerun draws ${R.k} years at random from the real ones, some twice and some not at all, recomputes every trend and ranks again. A country in the 90% group in nearly every rerun is a driver whatever the odd year does. Russia and Canada have no significant trend, yet stay drivers in ${fmt(100 * (R.byIso.get("RUS")?.f90 || 0), 0)}% and ${fmt(100 * (R.byIso.get("CAN")?.f90 || 0), 0)}% of reruns.`,
+    `<b>Year-to-year swings:</b> each year, each country's emissions above its own mean are added up; the chart counts how few countries hold 50, 75 or 90% of that excess.`]));
+  g2.append(tableDetails("Table: rising countries", R.rising,
+    [["Country", r => r.name, "s"], ["Trend, Tg C/yr²", r => r.t.slope, 3], ["95% CI low", r => r.t.lo, 3], ["95% CI high", r => r.t.hi, 3], ["Trend, %/yr", r => r.t.pct, 2], ["p", r => r.t.p, "p"],
+     ["Cumulative, %", r => 100 * r.cum, 1], ["Driver in reruns, %", r => 100 * r.f90, 0], ["UNFCCC", r => ST[r.st].label, "s"]], 1));
+  g2.append(tableDetails("Table: year by year", R.annual,
     [["Year", r => String(r.yr), "s"], ["Above normal, Tg C", r => r.tot, 1], ["50%", r => r.n50, 0], ["75%", r => r.n75, 0], ["90%", r => r.n90, 0],
      ["Largest contributors", r => r.top.map(c => short(c.name)).join(", "), "s"]], -1));
+  app.append(g2);
+  const top3 = R.rising.slice(0, 3), rest = R.totRise - d3.sum(top3, r => r.t.slope), shades = ["var(--seq-3)", "var(--seq-2)", "var(--seq-1)"];
+  drawDonut(g2.querySelector("#c2d"), [...top3.map((r, i) => ({ label: short(r.name), v: r.t.slope, c: shades[i], iso: r.iso, sub: `${sgn(r.t.slope, 2)} Tg C/yr each year` })),
+    { label: `${R.rising.length - 3} other countries`, v: rest, c: "var(--absent)", sub: `${sgn(rest, 2)} Tg C/yr each year` }], [R.n[50], "make up half"]);
+  const c2b = g2.querySelector("#c2b"), redraw2 = () => { c2b.innerHTML = ""; drawRankBars(c2b); };
+  redraw2(); bindPick(g2, "top2", "top2", redraw2);
+  drawSure(g2.querySelector("#cs1"), sure.slice(0, 10)); drawSureHist(g2.querySelector("#cs2"));
+  drawAnnualCounts(g2.querySelector("#c3a")); drawHeat(g2.querySelector("#c3b"), g2.querySelector("#heatkey"));
 
-  // Goal 3
-  const sh = s => 100 * R.byStatus[s] / R.totRise;
-  const b4 = band("Goal 3", "How much of the rise is on unmanaged forest land?", [
-    [fmt(sh("unmanaged"), 0) + "%", "of the rise: countries reporting unmanaged forest"], [fmt(sh("managed"), 0) + "%", "all forest managed"], [fmt(sh("absent") + sh("nodata"), 0) + "%", "no UNFCCC number"]]);
-  b4.insertAdjacentHTML("beforeend", `<div class="grid2">
-    <div class="panel"><h3>Share of the summed rise by UNFCCC reporting</h3><div class="chart" id="c4a"></div></div>
-    <div class="panel"><div class="qrow" style="justify-content:space-between"><h3>Trend against unmanaged share</h3><span class="key"><span><span class="dot" style="background:var(--unmanaged)"></span>reports unmanaged</span><span><span class="dot" style="background:var(--managed)"></span>all managed</span></span></div><div class="chart" id="c4b"></div></div></div>`);
-  app.append(b4);
-  drawStatus(b4.querySelector("#c4a")); drawScatter(b4.querySelector("#c4b"));
-  b4.append(tableDetails("UNFCCC forest land per country", R.rows.filter(r => r.t.mean > 0),
+  // ---- Goal 3
+  const g3 = goalSection("goal3", "Goal 3", "How much of the rise is on unmanaged forest land?",
+    `${fmt(100 * sh("unmanaged"), 0)}% of the rise comes from countries that report unmanaged forest to the UNFCCC, mostly Russia and Canada.`,
+    [[fmt(100 * sh("unmanaged"), 0) + "%", "countries reporting unmanaged forest"], [fmt(100 * sh("managed"), 0) + "%", "all forest reported as managed"],
+     [fmt(100 * (sh("absent") + sh("nodata")), 0) + "%", "no UNFCCC number (DR Congo)"]]);
+  const p3 = part("Rise by UNFCCC reporting", "Countries are grouped by what they report, not by where inside the country the fires burn.");
+  p3.insertAdjacentHTML("beforeend", `<div class="grid2">${panel("Share of the summed rise", "c4a")}
+    ${panel("Trend against unmanaged share", "c4b", `<span class="key"><span><span class="dot" style="background:var(--unmanaged)"></span>reports unmanaged</span><span><span class="dot" style="background:var(--managed)"></span>all managed</span></span>`)}</div>`);
+  g3.append(p3);
+  g3.append(howTo([
+    "Russia and Canada count whole under “reports unmanaged forest”, although only part of their forest is unmanaged. A fire-level split would need a map of unmanaged land.",
+    "DR Congo and Rep. Congo have no UNFCCC CRT submission, so they fall under “no UNFCCC number”."]));
+  g3.append(tableDetails("Table: UNFCCC forest land per country", R.rows.filter(r => r.t.mean > 0),
     [["Country", r => r.name, "s"], ["Managed, kha", r => r.man, 0], ["Unmanaged, kha", r => r.unman, 0], ["Unmanaged, %", r => r.unmanShare == null ? null : 100 * r.unmanShare, 1],
      ["Trend, %/yr", r => r.t.pct, 2], ["Status", r => r.stText, "s"]], 3));
+  app.append(g3);
+  const stParts = [["unmanaged"], ["managed"], ["partial"], ["absent", "nodata"]].map(ks => ({
+    label: ks[0] === "absent" ? "No UNFCCC number" : ST[ks[0]].label, c: ST[ks[0]].color, v: d3.sum(ks, k => R.byStatus[k]),
+    sub: R.rising.filter(r => ks.includes(r.st)).slice(0, 3).map(r => short(r.name)).join(", ") })).filter(d => d.v > 0);
+  drawDonut(g3.querySelector("#c4a"), stParts, [fmt(100 * sh("unmanaged"), 0) + "%", "unmanaged"]);
+  drawScatter(g3.querySelector("#c4b"));
 
+  // ---- methods
   const m = el("details");
   m.innerHTML = `<summary>Methods and data</summary><div class="dbody methods">
     <p><b>Fire carbon.</b> GFED5.1 (2002–2022) and GFED5.1 NRT reprocessed with combined VIIRS (2023–2025), shared out to countries on a 0.05° grid; the numbers of rsl-slu.github.io/wildfire and the shared data sheet. Tg C per year; × 3.664 for Tg CO₂.</p>
-    <p><b>Definitions.</b> Forest overall = boreal, temperate and tropical forest classes plus deforestation fires. Without deforestation = the forest classes only.</p>
-    <p><b>Trend.</b> Theil–Sen slope, also as % of the period mean per year; Mann–Kendall test, significant when p &lt; ${state.alpha} (set with the slider; 0.05 is the convention used in the paper figures). Countries below ${MIN_MEAN} Tg C/yr are greyed on the map and left out of the dot chart.</p>
-    <p><b>Goal 2b.</b> Countries with a positive slope, ranked; the smallest number whose slopes add up to 50, 75 or 90% of the summed positive slopes.</p>
+    <p><b>Definitions and forest type.</b> Forest overall = GFED classes boreal forest (sparse boreal 2 + boreal 3), temperate forest (7), tropical forest (12) and deforestation (16). Without deforestation = classes 2, 3, 7 and 12. The forest-type split is each class's share of forest-overall carbon over the period; the map colours the largest of the three forest classes.</p>
+    <p><b>Trend.</b> Theil–Sen slope, also as % of the period mean per year; Mann–Kendall test, significant when p &lt; ${state.alpha} (slider; 0.05 is the convention in the paper figures). 95% confidence interval of the slope from Sen (1968), as in scipy.stats.theilslopes. No correction for serial correlation or for testing many countries. Countries below ${MIN_MEAN} Tg C/yr are greyed on the map and left out of the dot chart.</p>
+    <p><b>Halves.</b> ${H1} against ${H2} (${R.y1s.length} and ${R.y2s.length} years): change in the mean, and a Theil–Sen trend with Mann–Kendall p inside each half. Countries holding 50, 75 or 90% of the increase are counted as in Goal 2b, from the countries whose mean went up.</p>
+    <p><b>Goal 2b.</b> Countries with a positive slope, ranked by slope in Tg C/yr per year; the smallest number whose slopes add up to 50, 75 or 90% of the summed positive slopes. Falling countries are left out, and because Theil–Sen slopes are not additive the sum differs from the world trend.</p>
+    <p><b>Reruns.</b> Nonparametric bootstrap over years: ${fmt(B, 0)} resamples of the ${R.k} years with replacement (fixed seed), Theil–Sen slope per country in each (pairs of identical years skipped), Goal 2b ranking repeated; share of resamples in which a country is among those making up 50% and 90% of the summed rise, and the 5–95% range of the counts. Assumes little year-to-year carry-over. Computed in code/04_analyzer_data.py.</p>
     <p><b>Goal 2a (draft).</b> Each year, each country's emissions above its own period mean; the number of countries making up 50, 75 or 90% of that year's excess. To be confirmed with the paper team.</p>
     <p><b>Managed / unmanaged.</b> UNFCCC CRT Table 4.1 final area compiled by Victoria Dombrowik. Ecuador and Honduras divided by 1000 (reported in ha); EU total, France and UK "Annex" rows and the Pakistan duplicate dropped; newest submission for Denmark and Lithuania. Unmanaged coded NO or NA counted as 0.</p>
+    <p><b>Product change in 2023.</b> 2023–2025 come from GFED5.1 NRT with VIIRS, shaded in the charts; trends ending in 2025 lean on these years, including Canada's record 2023 season.</p>
     <p><b>Known artefact.</b> Zimbabwe drops to 0 from 2020 because GFED's land-cover map stops classing any Zimbabwe cell as tropical forest.</p>
     <p class="muted">${D.countries.length} countries with forest fire in at least one year. Data built ${D.built}.</p></div>`;
-  const mb = el("section", { class: "band" }); mb.append(m); app.append(mb);
+  const mb = el("section", { class: "goalsec", id: "methods" }); mb.append(m); app.append(mb);
 }
 
-function band(goal, q, answers, draft = false) {
-  const s = el("section", { class: "band" });
-  s.innerHTML = `<div class="bhead"><div class="qrow"><span class="goal">${goal}</span><h2>${q}</h2>${draft ? '<span class="draft">Draft definition</span>' : ""}</div>
-    <div class="answer">${answers.map(([n, t]) => `<span class="a"><span class="n">${n}</span>${t}</span>`).join("")}</div></div>`;
-  return s;
+function drawDonut(node, parts, [big, small]) {
+  const tot = d3.sum(parts, p => p.v), S = 200, r = S / 2;
+  const wrap = el("div", { class: "donut" }); node.append(wrap);
+  const svg = d3.select(wrap).append("svg").attr("viewBox", `0 0 ${S} ${S}`).attr("role", "img")
+    .attr("aria-label", parts.map(p => `${p.label} ${fmt(100 * p.v / tot, 0)}%`).join(", "));
+  const g = svg.append("g").attr("transform", `translate(${r},${r})`);
+  const arc = d3.arc().innerRadius(r * .62).outerRadius(r - 2).cornerRadius(3);
+  g.selectAll("path").data(d3.pie().sort(null).value(p => p.v)(parts)).join("path")
+    .attr("fill", d => d.data.c).attr("stroke", "var(--surface)").attr("stroke-width", 2).attr("class", d => d.data.iso ? "hit" : null)
+    .on("mousemove", (ev, d) => showTip(ev, `<div class="t">${d.data.label}</div><div class="r">${fmt(100 * d.data.v / tot, 1)}%</div>${d.data.sub ? `<div class="r">${d.data.sub}</div>` : ""}`))
+    .on("mouseleave", hideTip).on("click", (ev, d) => d.data.iso && openCountry(d.data.iso))
+    .attr("d", d => arc({ ...d, endAngle: d.startAngle }))
+    .transition().duration(DUR).ease(d3.easeCubicOut).attrTween("d", d => { const i = d3.interpolate(d.startAngle, d.endAngle); return t => arc({ ...d, endAngle: i(t) }); });
+  g.append("text").attr("text-anchor", "middle").attr("y", 4).style("fill", "var(--ink)").style("font-family", "var(--font-display)").style("font-stretch", "75%")
+    .attr("font-weight", 760).style("font-size", "40px").text(big);
+  g.append("text").attr("text-anchor", "middle").attr("y", 26).style("fill", "var(--ink-2)").style("font-size", "12.5px").text(small);
+  const ul = el("ul"); wrap.append(ul);
+  parts.forEach(p => ul.insertAdjacentHTML("beforeend", `<li><span class="sw" style="background:${p.c}"></span><span>${p.label}</span><b>${fmt(100 * p.v / tot, 0)}%</b>${p.sub ? `<small>${p.sub}</small>` : ""}</li>`));
+}
+function drawTile0(node) {
+  const W = 120, H = 54, y = R.world.y, x = d3.scaleLinear().domain([0, y.length - 1]).range([2, W - 2]), sy = d3.scaleLinear().domain([0, d3.max(y)]).range([H - 4, 4]);
+  const s = d3.select(node).append("svg").attr("width", W).attr("height", H).attr("viewBox", `0 0 ${W} ${H}`);
+  const bw = (W - 4) / y.length;
+  s.selectAll("rect").data(y).join("rect").attr("x", (v, i) => 2 + i * bw).attr("width", bw - 1).attr("rx", 1).attr("fill", serColor(state.ser)).attr("fill-opacity", .5).attr("y", v => sy(v)).attr("height", v => H - 4 - sy(v));
+  const f = i => R.world.t.icpt + R.world.t.slope * R.yrs[i];
+  s.append("line").attr("x1", x(0)).attr("x2", x(y.length - 1)).attr("y1", sy(f(0))).attr("y2", sy(f(y.length - 1))).attr("stroke", "var(--accent)").attr("stroke-width", 2.2);
 }
 
 // ---------- tables ----------
@@ -434,11 +599,12 @@ function tableDetails(title, rows, cols, sortCol) {
 
 // ---------- hero charts ----------
 function drawWorld(node) {
-  const W = chartW(node, 700), narrow = W < 560, H = narrow ? 260 : 290, m = { t: narrow ? 60 : 44, r: 12, b: 24, l: 40 }, yrs = R.yrs, w = R.world;
+  const W = chartW(node, 700), narrow = W < 560, H = narrow ? 260 : 290, m = { t: narrow ? 60 : 44, r: 12, b: 24, l: 50 }, yrs = R.yrs, w = R.world;
   const x = d3.scaleBand().domain(yrs).range([m.l, W - m.r]).padding(.22);
   const y = d3.scaleLinear().domain([0, d3.max([...w.y, ...w.other]) * 1.05]).nice().range([H - m.b, m.t]);
   const s = svgIn(node, W, H);
   s.append("g").attr("class", "grid").selectAll("line").data(y.ticks(4)).join("line").attr("x1", m.l).attr("x2", W - m.r).attr("y1", d => y(d)).attr("y2", d => y(d));
+  nrtBand(s, x, y.range()[1], H - m.b);
   s.append("g").attr("class", "ax").attr("transform", `translate(0,${H - m.b})`).call(d3.axisBottom(x).tickValues(yrs.filter(v => v % 4 === 2)).tickSizeOuter(0));
   s.append("g").attr("class", "ax").attr("transform", `translate(${m.l},0)`).call(d3.axisLeft(y).ticks(4).tickSizeOuter(0));
   s.append("g").selectAll("rect").data(w.y).join("rect").attr("x", (v, i) => x(yrs[i])).attr("width", x.bandwidth()).attr("rx", 2).attr("fill", serColor(state.ser))
@@ -451,10 +617,10 @@ function drawWorld(node) {
   const f = yr => w.t.icpt + w.t.slope * yr;
   drawLine(s.append("path").datum([yrs[0], yrs[yrs.length - 1]]).attr("fill", "none").attr("stroke", "var(--accent)").attr("stroke-width", 2.4).attr("stroke-dasharray", RM ? "6 4" : null)
     .attr("d", d3.line().x(yr => cx(yrs.indexOf(yr))).y(yr => y(f(yr)))));
-  const big = s.append("text").attr("x", m.l).attr("y", 26).style("fill", "var(--ink)").style("font-family", "var(--font-display)").attr("font-weight", 760).style("font-size", "30px")
+  const big = s.append("text").attr("x", m.l).attr("y", 26).style("fill", "var(--ink)").style("font-family", "var(--font-display)").attr("font-weight", 760).style("font-size", "36px")
     .style("font-stretch", "75%").text(`${sgn(w.t.pct, 1)}%/yr`);
   const bigW = big.node().getComputedTextLength();
-  s.append("text").attr("x", narrow ? m.l : m.l + bigW + 14).attr("y", narrow ? 46 : 24).style("fill", "var(--muted)").style("font-size", narrow ? "11px" : "12px")
+  s.append("text").attr("x", narrow ? m.l : m.l + bigW + 14).attr("y", narrow ? 46 : 24).style("fill", "var(--muted)").style("font-size", narrow ? "12.5px" : "13px")
     .text(narrow ? `Theil–Sen ${sgn(w.t.slope, 1)} Tg C/yr² · p ${pfmt(w.t.p)} · mean ${fmt(w.t.mean, 0)}` :`Theil–Sen ${sgn(w.t.slope, 1)} Tg C/yr² · Mann–Kendall p ${pfmt(w.t.p)} · mean ${fmt(w.t.mean, 0)} Tg C/yr`);
 }
 
@@ -488,11 +654,44 @@ function drawTile3(node) {
 }
 
 // ---------- map ----------
-function drawMap(node, keyNode) {
-  const W = 960, H = 440;
+const LAYERS = [
+  { k: "trend", label: "Trend", title: () => `Trend per country, %/yr, 2002–${state.per}` },
+  { k: "change", label: "Half vs half", title: () => `Change in the mean, ${R.y1s[0]}–${R.y1s[R.y1s.length - 1]} to ${R.y2s[0]}–${state.per}` },
+  { k: "type", label: "Forest type", title: () => "Forest class with the most fire carbon (hover for the full split)" },
+  { k: "unfccc", label: "UNFCCC", title: () => "What the country reports to the UNFCCC" },
+  { k: "sure", label: "How sure", title: () => `Share of ${fmt(D.bootB, 0)} resamples in which the country is among those making up 90% of the rise` },
+];
+const gradKey = (lo, hi, stops) => `<span style="display:inline-flex;align-items:center;gap:6px"><span style="font-family:var(--font-data);font-size:12px">${lo}</span>
+  <span style="width:120px;height:9px;border-radius:2px;background:linear-gradient(90deg,${stops.join(",")})"></span><span style="font-family:var(--font-data);font-size:12px">${hi}</span></span>`;
+const swKey = (c, t) => `<span><span class="sw" style="background:${c}"></span>${t}</span>`;
+// every number the page has on a country, for the map tooltip
+function ttFull(r) {
+  const fx = FX.filter(f => r.fx[f.k] >= .005).map(f => `${f.label.replace(" forest", "")} ${fmt(100 * r.fx[f.k], 0)}%`).join(" · ");
+  return `<div class="t">${r.name}</div>
+    <div class="r">mean ${fmt(r.t.mean, r.t.mean < 1 ? 2 : 1)} Tg C/yr${r.reliable ? "" : ` (below ${MIN_MEAN})`}</div>
+    <div class="r">trend ${sgn(r.t.pct, 1)}%/yr · p ${pfmt(r.t.p)}</div>
+    <div class="r">halves ${fmt(r.m1, 1)} → ${fmt(r.m2, 1)} (${sgn(r.rch, 0)}%)</div>
+    ${fx ? `<div class="r">${fx}</div>` : ""}
+    <div class="r">${ST[r.st].label}${r.unmanShare != null ? ` · ${fmt(100 * r.unmanShare, 0)}% unmanaged` : ""}</div>
+    <div class="r">driver in ${fmt(100 * r.f90, 0)}% of resamples</div>`;
+}
+function drawMap(node, keyNode, titleNode) {
+  const W = 960, H = 440, L = state.layer;
   const frame = []; for (let lo = -150; lo <= 172; lo += 2) frame.push([lo, -58], [lo, 84], [lo, 0]); for (let la = -58; la <= 84; la += 2) frame.push([-150, la], [172, la]);
   const proj = d3.geoRobinson().rotate([-11, 0]).fitExtent([[4, 4], [W - 4, H - 4]], { type: "MultiPoint", coordinates: frame });
-  const path = d3.geoPath(proj), col = divColor();
+  const path = d3.geoPath(proj), div = divColor();
+  const st = [cssVar("--div-neg"), cssVar("--div-neg-2"), cssVar("--div-mid"), cssVar("--div-pos-2"), cssVar("--div-pos")];
+  const chg = d3.scaleLinear().domain([-1, -.4, 0, .4, 1]).range(st).interpolate(d3.interpolateRgb).clamp(true);
+  const seq = d3.scaleLinear().domain([0, .5, 1]).range([cssVar("--seq-1"), cssVar("--seq-2"), cssVar("--seq-3")]).interpolate(d3.interpolateRgb).clamp(true);
+  const fill = r => {
+    if (L === "unfccc") return ST[r.st].color;
+    if (L === "type") return r.dom && r.t.mean >= 0.1 ? r.dom.c : "var(--land-2)";
+    if (L === "sure") return r.f90 > 0 ? seq(r.f90) : "var(--land-2)";
+    if (!r.reliable) return "var(--land-2)";
+    if (L === "change") return r.m1 > 0 && r.m2 > 0 ? chg(Math.log2(r.m2 / r.m1)) : "var(--land-2)";
+    return isFinite(r.t.pct) ? div(r.t.pct) : "var(--land-2)";
+  };
+  const fade = r => L === "trend" && r.reliable && !r.t.sig ? .45 : 1;
   const s = svgIn(node, W, H);
   s.append("rect").attr("width", W).attr("height", H).attr("rx", 6).attr("fill", "var(--ocean)");
   s.append("g").selectAll("path").data(GEO.features).join("path").attr("class", "country").attr("d", path)
@@ -500,31 +699,125 @@ function drawMap(node, keyNode) {
     .each(function (f) {
       const r = R.byIso.get(f.properties.iso), sel = d3.select(this);
       if (!r) { sel.style("cursor", "default"); return; }
-      const fill = r.reliable && isFinite(r.t.pct) ? col(r.t.pct) : "var(--land-2)";
-      sel.on("mousemove", ev => showTip(ev, ttCountry(r) + (r.reliable ? "" : `<div class="r">below ${MIN_MEAN} Tg C/yr</div>`))).on("mouseleave", hideTip).on("click", () => openCountry(r.iso))
-        .transition().duration(DUR).delay(RM ? 0 : 120).attr("fill", fill).attr("fill-opacity", r.reliable && !r.t.sig ? .45 : 1);
+      sel.on("mousemove", ev => showTip(ev, ttFull(r))).on("mouseleave", hideTip).on("click", () => openCountry(r.iso))
+        .transition().duration(DUR).delay(RM ? 0 : 80).attr("fill", fill(r)).attr("fill-opacity", fade(r));
     });
-  // gradient key
-  const g = col.copy();
-  keyNode.innerHTML = `<span style="display:inline-flex;align-items:center;gap:6px"><span style="font-family:var(--font-data);font-size:10.5px">${sgn(-6, 0)}%</span>
-    <span style="width:120px;height:9px;border-radius:2px;background:linear-gradient(90deg,${[-6, -3, 0, 3, 6].map(v => g(v)).join(",")})"></span>
-    <span style="font-family:var(--font-data);font-size:10.5px">+6%</span></span><span>faded: not significant</span><span><span class="sw" style="background:var(--land-2)"></span>below ${MIN_MEAN} Tg C/yr</span>`;
+  titleNode.textContent = LAYERS.find(l => l.k === L).title();
+  const below = swKey("var(--land-2)", `below ${MIN_MEAN} Tg C/yr`);
+  keyNode.innerHTML = L === "trend" ? `${gradKey("−6%", "+6%", [-6, -3, 0, 3, 6].map(v => div(v)))}<span>faded: not significant</span>${below}`
+    : L === "change" ? `${gradKey("½×", "2×", [-1, -.5, 0, .5, 1].map(v => chg(v)))}${below}`
+    : L === "type" ? FX.slice(0, 3).map(f => swKey(f.c, f.label)).join("") + swKey("var(--land-2)", "little forest fire")
+    : L === "unfccc" ? ["unmanaged", "managed", "partial", "absent"].map(k => swKey(ST[k].color, ST[k].label)).join("")
+    : `${gradKey("0%", "100%", [0, .5, 1].map(v => seq(v)))}${swKey("var(--land-2)", "never")}`;
+}
+
+// ---------- halves ----------
+function drawHalvesWorld(node) {
+  const W = chartW(node, 520), H = 270, m = { t: 14, r: 12, b: 24, l: 50 }, yrs = R.yrs, w = R.world, h = R.h;
+  const x = d3.scaleBand().domain(yrs).range([m.l, W - m.r]).padding(.22);
+  const y = d3.scaleLinear().domain([0, d3.max(w.y) * 1.08]).nice().range([H - m.b, m.t]);
+  const s = svgIn(node, W, H), col = serColor(state.ser);
+  s.append("g").attr("class", "grid").selectAll("line").data(y.ticks(4)).join("line").attr("x1", m.l).attr("x2", W - m.r).attr("y1", d => y(d)).attr("y2", d => y(d));
+  nrtBand(s, x, m.t, H - m.b);
+  s.append("g").attr("class", "ax").attr("transform", `translate(0,${H - m.b})`).call(d3.axisBottom(x).tickValues(yrs.filter(v => v % 4 === 2)).tickSizeOuter(0));
+  s.append("g").attr("class", "ax").attr("transform", `translate(${m.l},0)`).call(d3.axisLeft(y).ticks(4).tickSizeOuter(0));
+  s.append("g").selectAll("rect").data(w.y).join("rect").attr("x", (v, i) => x(yrs[i])).attr("width", x.bandwidth()).attr("rx", 2)
+    .attr("fill", col).attr("fill-opacity", (v, i) => i < h ? .45 : 1).attr("y", y(0)).attr("height", 0)
+    .on("mousemove", (ev, v) => showTip(ev, `<div class="t">${yrs[w.y.indexOf(v)]}</div><div class="r">${fmt(v, 0)} Tg C</div>`)).on("mouseleave", hideTip)
+    .transition().duration(DUR).delay((v, i) => RM ? 0 : i * 18).attr("y", v => y(v)).attr("height", v => y(0) - y(v));
+  [[0, h, w.m1], [h, yrs.length, w.m2]].forEach(([a, b, v]) => {
+    const x0 = x(yrs[a]), x1 = x(yrs[b - 1]) + x.bandwidth();
+    s.append("line").attr("x1", x0).attr("x2", x1).attr("y1", y(v)).attr("y2", y(v)).attr("stroke", "var(--ink)").attr("stroke-width", 2.2);
+    s.append("text").attr("x", (x0 + x1) / 2).attr("y", y(v) - 6).attr("text-anchor", "middle").style("fill", "var(--ink)").style("paint-order", "stroke").style("stroke", "var(--surface)").style("stroke-width", "4px").attr("font-weight", 650).text(`${fmt(v, 0)} Tg C/yr`);
+  });
+}
+function drawDumbbell(node) {
+  const pool = R.rel.slice().sort((a, b) => Math.abs(b.d) - Math.abs(a.d)), data = (state.top3 ? pool.slice(0, state.top3) : pool).sort((a, b) => b.d - a.d);
+  const rowH = 25, W = chartW(node, 520), m = { t: 20, r: 64, b: 24, l: 150 }, H = m.t + m.b + data.length * rowH;
+  const x = d3.scaleLinear().domain([0, d3.max(data, r => Math.max(r.m1, r.m2))]).nice().range([m.l, W - m.r]);
+  const s = svgIn(node, W, H), col = serColor(state.ser);
+  s.append("g").attr("class", "grid").selectAll("line").data(x.ticks(W < 560 ? 3 : 4)).join("line").attr("x1", d => x(d)).attr("x2", d => x(d)).attr("y1", m.t).attr("y2", H - m.b);
+  s.append("g").attr("class", "ax").attr("transform", `translate(0,${H - m.b})`).call(d3.axisBottom(x).ticks(W < 560 ? 3 : 4).tickSizeOuter(0));
+  s.append("text").attr("x", W - 4).attr("y", 11).attr("text-anchor", "end").style("fill", "var(--muted)").style("font-size", "11.5px").text("change");
+  data.forEach((r, i) => {
+    const cy = m.t + i * rowH + rowH / 2, g = s.append("g"), up = r.d >= 0;
+    nameLabel(g, r, m.l - 8, cy);
+    g.append("line").attr("x1", x(r.m1)).attr("x2", x(r.m1)).attr("y1", cy).attr("y2", cy).attr("stroke", up ? "var(--div-pos)" : "var(--div-neg)").attr("stroke-width", 3)
+      .transition().duration(DUR).delay(RM ? 0 : i * 30).attr("x2", x(r.m2));
+    g.append("circle").attr("cx", x(r.m1)).attr("cy", cy).attr("r", 4.5).attr("fill", "var(--surface)").attr("stroke", "var(--ink-2)").attr("stroke-width", 1.6);
+    g.append("circle").attr("cx", x(r.m1)).attr("cy", cy).attr("r", 5).attr("fill", col).transition().duration(DUR).delay(RM ? 0 : i * 30).attr("cx", x(r.m2));
+    g.append("text").attr("x", W - 4).attr("y", cy).attr("dy", "0.32em").attr("text-anchor", "end").style("font-family", "var(--font-data)").style("font-size", "12px")
+      .style("fill", "var(--ink)").text(sgn(r.d, Math.abs(r.d) < 10 ? 1 : 0));
+    g.append("rect").attr("class", "hit").attr("x", m.l).attr("y", cy - rowH / 2).attr("width", W - m.l).attr("height", rowH).attr("fill", "transparent")
+      .on("mousemove", ev => showTip(ev, `<div class="t">${r.name}</div><div class="r">${fmt(r.m1, 1)} → ${fmt(r.m2, 1)} Tg C/yr (${sgn(r.rch, 0)}%)</div><div class="r">${r.d > 0 ? fmt(100 * r.d / R.totInc, 0) + "% of the increase" : "decrease"}</div>`))
+      .on("mouseleave", hideTip).on("click", () => openCountry(r.iso));
+  });
+}
+
+// ---------- robustness ----------
+function drawSure(node, data) {
+  const rowH = 26, W = chartW(node, 520), m = { t: 4, r: 50, b: 24, l: 150 }, H = m.t + m.b + data.length * rowH;
+  const x = d3.scaleLinear().domain([0, 1]).range([m.l, W - m.r]);
+  const s = svgIn(node, W, H);
+  s.append("g").attr("class", "grid").selectAll("line").data([.25, .5, .75, 1]).join("line").attr("x1", d => x(d)).attr("x2", d => x(d)).attr("y1", m.t).attr("y2", H - m.b);
+  s.append("line").attr("x1", x(.8)).attr("x2", x(.8)).attr("y1", m.t).attr("y2", H - m.b).attr("stroke", "var(--ink-2)").attr("stroke-dasharray", "3 3");
+  s.append("g").attr("class", "ax").attr("transform", `translate(0,${H - m.b})`).call(d3.axisBottom(x).tickValues([0, .25, .5, .75, 1]).tickFormat(d3.format(".0%")).tickSizeOuter(0));
+  data.forEach((r, i) => {
+    const y = m.t + i * rowH, g = s.append("g");
+    nameLabel(g, r, m.l - 8, y + rowH / 2);
+    g.append("rect").attr("x", m.l).attr("y", y + 4).attr("height", rowH - 8).attr("rx", 2).attr("fill", "var(--accent)").attr("fill-opacity", .55).attr("width", 0)
+      .transition().duration(DUR).delay(RM ? 0 : i * 30).attr("width", x(r.f90) - m.l);
+    g.append("rect").attr("x", m.l).attr("y", y + 8).attr("height", rowH - 16).attr("rx", 1.5).attr("fill", "var(--seq-3)").attr("width", 0)
+      .transition().duration(DUR).delay(RM ? 0 : i * 30 + 120).attr("width", Math.max(0, x(r.f50) - m.l));
+    g.append("text").attr("x", W - 4).attr("y", y + rowH / 2).attr("dy", "0.32em").attr("text-anchor", "end").style("font-family", "var(--font-data)").style("font-size", "12px")
+      .style("fill", "var(--ink)").text(fmt(100 * r.f90, 0) + "%");
+    g.append("rect").attr("class", "hit").attr("x", m.l).attr("y", y).attr("width", W - m.l).attr("height", rowH).attr("fill", "transparent")
+      .on("mousemove", ev => showTip(ev, `<div class="t">${r.name}</div><div class="r">in the 90% group: ${fmt(100 * r.f90, 1)}%</div><div class="r">in the 50% group: ${fmt(100 * r.f50, 1)}%</div><div class="r">trend ${sgn(r.t.slope, 2)} Tg C/yr² · p ${pfmt(r.t.p)}</div>`))
+      .on("mouseleave", hideTip).on("click", () => openCountry(r.iso));
+  });
+  s.append("text").attr("x", x(.8) + 4).attr("y", H - m.b - 4).style("fill", "var(--muted)").style("font-size", "11.5px").text("80%");
+}
+function drawSureHist(node) {
+  const h = R.boot.h90, tot = d3.sum(h), data = h.map((c, n) => ({ n, f: c / tot })).filter(d => d.n > 0);
+  const W = chartW(node, 520), H = 250, m = { t: 26, r: 12, b: 34, l: 40 };
+  const x = d3.scaleBand().domain(data.map(d => d.n)).range([m.l, W - m.r]).padding(.18);
+  const y = d3.scaleLinear().domain([0, d3.max(data, d => d.f)]).nice().range([H - m.b, m.t]);
+  const s = svgIn(node, W, H), [lo, med, hi] = R.boot.n[90];
+  s.append("g").attr("class", "grid").selectAll("line").data(y.ticks(4)).join("line").attr("x1", m.l).attr("x2", W - m.r).attr("y1", d => y(d)).attr("y2", d => y(d));
+  s.append("g").attr("class", "ax").attr("transform", `translate(0,${H - m.b})`).call(d3.axisBottom(x).tickValues(data.map(d => d.n).filter(n => data.length < 16 || n % 2 === 0)).tickSizeOuter(0));
+  s.append("g").attr("class", "ax").attr("transform", `translate(${m.l},0)`).call(d3.axisLeft(y).ticks(4).tickFormat(d3.format(".0%")).tickSizeOuter(0));
+  s.append("text").attr("x", (m.l + W - m.r) / 2).attr("y", H - 3).attr("text-anchor", "middle").style("fill", "var(--muted)").style("font-size", "12px").text("Countries making up 90% of the rise");
+  s.append("g").selectAll("rect").data(data).join("rect").attr("x", d => x(d.n)).attr("width", x.bandwidth()).attr("rx", 2)
+    .attr("fill", d => d.n >= lo && d.n <= hi ? "var(--accent)" : "var(--axis)").attr("y", y(0)).attr("height", 0)
+    .on("mousemove", (ev, d) => showTip(ev, `<div class="t">${d.n} countries</div><div class="r">${fmt(100 * d.f, 1)}% of resamples</div>`)).on("mouseleave", hideTip)
+    .transition().duration(DUR).delay((d, i) => RM ? 0 : i * 25).attr("y", d => y(d.f)).attr("height", d => y(0) - y(d.f));
+  const xr = x(R.n[90]) + x.bandwidth() / 2;
+  if (isFinite(xr)) {
+    s.append("line").attr("x1", xr).attr("x2", xr).attr("y1", m.t - 6).attr("y2", H - m.b).attr("stroke", "var(--ink)").attr("stroke-width", 1.4).attr("stroke-dasharray", "4 3");
+    s.append("text").attr("x", xr + 5).attr("y", m.t - 10).style("fill", "var(--ink)").attr("font-weight", 650).text(`real data: ${R.n[90]}`);
+  }
+  s.append("text").attr("x", W - m.r).attr("y", 12).attr("text-anchor", "end").style("fill", "var(--muted)").style("font-size", "12px").text(`orange: middle 90% (${lo}–${hi})`);
 }
 
 // ---------- Goal 1 dots ----------
 function drawDots(node) {
   const byMean = R.rel.slice().sort((a, b) => b.t.mean - a.t.mean);
   const data = (state.top1 ? byMean.slice(0, state.top1) : byMean).sort((a, b) => b.t.pct - a.t.pct);
-  const rowH = 15, W = chartW(node, 960), m = { t: 6, r: 16, b: 24, l: W < 560 ? 124 : 150 }, H = m.t + m.b + data.length * rowH;
+  const rowH = 20, W = chartW(node, 960), nw = W < 560, m = { t: 22, r: nw ? 54 : 84, b: 26, l: nw ? 160 : 190 }, H = m.t + m.b + data.length * rowH;
   const ext = d3.max(data, r => Math.max(Math.abs(r.t.pct), Math.abs(r.to.pct || 0))) || 1;
   const x = d3.scaleLinear().domain([-ext, ext]).nice().range([m.l, W - m.r]), col = serColor(state.ser), dc = divColor();
   const s = svgIn(node, W, H);
-  s.append("g").attr("class", "grid").selectAll("line").data(x.ticks(10)).join("line").attr("x1", d => x(d)).attr("x2", d => x(d)).attr("y1", m.t).attr("y2", H - m.b);
+  s.append("g").attr("class", "grid").selectAll("line").data(x.ticks(nw ? 3 : 10)).join("line").attr("x1", d => x(d)).attr("x2", d => x(d)).attr("y1", m.t).attr("y2", H - m.b);
   s.append("line").attr("class", "zero").attr("x1", x(0)).attr("x2", x(0)).attr("y1", m.t).attr("y2", H - m.b).attr("stroke-width", 1.2);
-  s.append("g").attr("class", "ax").attr("transform", `translate(0,${H - m.b})`).call(d3.axisBottom(x).ticks(W < 560 ? 5 : 10).tickFormat(d => sgn(d, 0) + "%").tickSizeOuter(0));
+  s.append("g").attr("class", "ax").attr("transform", `translate(0,${H - m.b})`).call(d3.axisBottom(x).ticks(nw ? 3 : 10).tickFormat(d => sgn(d, 0) + "%").tickSizeOuter(0));
+  const meanRank = new Map(byMean.map((r, i) => [r.iso, i + 1]));
+  s.append("text").attr("x", W - 4).attr("y", 11).attr("text-anchor", "end").style("fill", "var(--muted)").style("font-size", "11.5px").text(nw ? "Tg C/yr" : "mean, Tg C/yr");
+  s.append("text").attr("x", m.l - 10).attr("y", 11).attr("text-anchor", "end").style("fill", "var(--muted)").style("font-size", "11.5px").text("size rank · country");
   data.forEach((r, i) => {
     const y = m.t + i * rowH + rowH / 2, g = s.append("g");
     nameLabel(g, r, m.l - 10, y);
+    g.select("text").text(`${meanRank.get(r.iso)} · ${short(r.name)}`);
+    g.append("text").attr("x", W - 4).attr("y", y).attr("dy", "0.32em").attr("text-anchor", "end").style("font-family", "var(--font-data)").style("font-size", "12px").style("fill", "var(--ink-2)").text(fmt(r.t.mean, r.t.mean < 10 ? 1 : 0));
     if (isFinite(r.to.pct)) g.append("line").attr("x1", x(r.to.pct)).attr("x2", x(r.to.pct)).attr("y1", y - 5).attr("y2", y + 5).attr("stroke", "var(--muted)").attr("stroke-width", 2);
     g.append("line").attr("x1", x(0)).attr("x2", x(0)).attr("y1", y).attr("y2", y).attr("stroke", dc(r.t.pct)).attr("stroke-width", 3).attr("stroke-linecap", "round")
       .transition().duration(DUR).delay(RM ? 0 : i * 12).attr("x2", x(r.t.pct));
@@ -537,41 +830,32 @@ function drawDots(node) {
 }
 
 // ---------- Goal 2b ----------
-function drawCum(node) {
-  const W = chartW(node, 520), H = 290, m = { t: 12, r: 16, b: 34, l: 44 }, data = R.rising, N = data.length;
-  const x = d3.scaleLinear().domain([0, N]).range([m.l, W - m.r]), y = d3.scaleLinear().domain([0, 1]).range([H - m.b, m.t]);
-  const s = svgIn(node, W, H);
-  s.append("g").attr("class", "grid").selectAll("line").data([.25, .5, .75, 1]).join("line").attr("x1", m.l).attr("x2", W - m.r).attr("y1", d => y(d)).attr("y2", d => y(d));
-  s.append("g").attr("class", "ax").attr("transform", `translate(0,${H - m.b})`).call(d3.axisBottom(x).ticks(6).tickSizeOuter(0));
-  s.append("g").attr("class", "ax").attr("transform", `translate(${m.l},0)`).call(d3.axisLeft(y).ticks(4).tickFormat(d3.format(".0%")).tickSizeOuter(0));
-  s.append("text").attr("x", (m.l + W - m.r) / 2).attr("y", H - 3).attr("text-anchor", "middle").style("fill", "var(--muted)").style("font-size", "10.5px").text("Rising countries, largest trend first");
-  const pts = [[0, 0], ...data.map((r, i) => [i + 1, r.cum])];
-  s.append("path").datum(pts).attr("fill", "var(--accent-wash)").attr("d", d3.area().x(d => x(d[0])).y0(y(0)).y1(d => y(d[1])).curve(d3.curveStepAfter));
-  drawLine(s.append("path").datum(pts).attr("fill", "none").attr("stroke", "var(--accent)").attr("stroke-width", 2.2).attr("d", d3.line().x(d => x(d[0])).y(d => y(d[1])).curve(d3.curveStepAfter)));
-  [[.5, R.n[50]], [.75, R.n[75]], [.9, R.n[90]]].forEach(([q, n]) => {
-    s.append("path").attr("d", `M${m.l},${y(q)}H${x(n)}V${y(0)}`).attr("fill", "none").attr("stroke", "var(--ink-2)").attr("stroke-dasharray", "3 3");
-    s.append("circle").attr("cx", x(n)).attr("cy", y(q)).attr("r", 4.5).attr("fill", "var(--accent)").attr("stroke", "var(--surface)").attr("stroke-width", 1.5);
-    s.append("text").attr("x", x(n) + 9).attr("y", y(q) + 4).style("fill", "var(--ink)").attr("font-weight", 650).text(`${Math.round(q * 100)}% · ${n}`);
-  });
-  s.append("rect").attr("x", m.l).attr("y", m.t).attr("width", W - m.l - m.r).attr("height", H - m.t - m.b).attr("fill", "transparent")
-    .on("mousemove", ev => { const [px] = d3.pointer(ev); const i = Math.max(1, Math.min(N, Math.ceil(x.invert(px)))); const r = data[i - 1];
-      showTip(ev, `<div class="t">#${i} ${r.name}</div><div class="r">${sgn(r.t.slope, 3)} Tg C/yr²</div><div class="r">cumulative ${fmt(100 * r.cum, 1)}%</div>`); })
-    .on("mouseleave", hideTip);
-}
 function drawRankBars(node) {
-  const data = state.top2 ? R.rising.slice(0, state.top2) : R.rising, rowH = 21, m = { t: 4, r: 50, b: 22, l: 128 }, W = chartW(node, 520), H = m.t + m.b + data.length * rowH;
-  const x = d3.scaleLinear().domain([0, d3.max(data, r => r.t.slope)]).nice().range([m.l, W - m.r - 44]);
+  const data = state.top2 ? R.rising.slice(0, state.top2) : R.rising, rowH = 25, m = { t: 20, r: 104, b: 24, l: 150 }, W = chartW(node, 520), H = m.t + m.b + data.length * rowH;
+  // the axis follows the bars; confidence intervals that run past it end in an arrow
+  const top = d3.max(data, r => r.t.slope), lo = Math.min(0, Math.max(d3.min(data, r => r.t.lo), -0.5 * top)), hi = Math.max(top, Math.min(d3.max(data, r => r.t.hi), 1.6 * top));
+  const x = d3.scaleLinear().domain([lo, hi]).nice().range([m.l, W - m.r]), [d0, d1] = x.domain();
   const s = svgIn(node, W, H), col = serColor(state.ser);
-  s.append("g").attr("class", "ax").attr("transform", `translate(0,${H - m.b})`).call(d3.axisBottom(x).ticks(4).tickSizeOuter(0));
+  s.append("g").attr("class", "grid").selectAll("line").data(x.ticks(W < 560 ? 3 : 4)).join("line").attr("x1", d => x(d)).attr("x2", d => x(d)).attr("y1", m.t).attr("y2", H - m.b);
+  s.append("line").attr("class", "zero").attr("x1", x(0)).attr("x2", x(0)).attr("y1", m.t).attr("y2", H - m.b);
+  s.append("g").attr("class", "ax").attr("transform", `translate(0,${H - m.b})`).call(d3.axisBottom(x).ticks(W < 560 ? 3 : 4).tickSizeOuter(0));
+  s.append("text").attr("x", W - 54).attr("y", 12).attr("text-anchor", "end").style("fill", "var(--muted)").style("font-size", "11.5px").text("trend");
+  s.append("text").attr("x", W - 4).attr("y", 11).attr("text-anchor", "end").style("fill", "var(--muted)").style("font-size", "11.5px").text("cum.");
   data.forEach((r, i) => {
-    const y = m.t + i * rowH, g = s.append("g");
+    const y = m.t + i * rowH, cy = y + rowH / 2 - 1.5, g = s.append("g");
     nameLabel(g, r, m.l - 8, y + rowH / 2 - 1);
-    g.append("rect").attr("x", m.l).attr("y", y + 3).attr("height", rowH - 8).attr("rx", 2).attr("fill", r.t.sig ? col : "var(--surface)").attr("stroke", col).attr("stroke-width", 1.4)
-      .attr("width", 0).transition().duration(DUR).delay(RM ? 0 : i * 30).attr("width", Math.max(1, x(r.t.slope) - m.l));
-    g.append("text").attr("x", x(r.t.slope) + 6).attr("y", y + rowH / 2 - 1).attr("dy", "0.32em").style("font-family", "var(--font-data)").style("font-size", "10.5px").text(sgn(r.t.slope, 2));
-    g.append("text").attr("x", W - 4).attr("y", y + rowH / 2 - 1).attr("dy", "0.32em").attr("text-anchor", "end").style("fill", "var(--muted)").style("font-family", "var(--font-data)").style("font-size", "10.5px").text(fmt(100 * r.cum, 0) + "%");
+    g.append("rect").attr("x", x(0)).attr("y", y + 3).attr("height", rowH - 9).attr("rx", 2).attr("fill", r.t.sig ? col : "var(--surface)").attr("stroke", col).attr("stroke-width", 1.4)
+      .attr("width", 0).transition().duration(DUR).delay(RM ? 0 : i * 30).attr("width", Math.max(1, x(r.t.slope) - x(0)));
+    if (isFinite(r.t.lo) && isFinite(r.t.hi)) {
+      const a = x(Math.max(d0, r.t.lo)), b = x(Math.min(d1, r.t.hi)), ci = g.append("g").attr("stroke", "var(--ink-2)").attr("stroke-width", 1.3).attr("fill", "none");
+      ci.append("line").attr("x1", a).attr("x2", b).attr("y1", cy).attr("y2", cy);
+      [[a, r.t.lo < d0, -1], [b, r.t.hi > d1, 1]].forEach(([p, cut, dir]) => ci.append("path")
+        .attr("d", cut ? `M${p - dir * 4},${cy - 3.5}L${p},${cy}L${p - dir * 4},${cy + 3.5}` : `M${p},${cy - 4}V${cy + 4}`));
+    }
+    g.append("text").attr("x", W - 54).attr("y", y + rowH / 2 - 1).attr("dy", "0.32em").attr("text-anchor", "end").style("font-family", "var(--font-data)").style("font-size", "12px").style("fill", "var(--ink)").text(sgn(r.t.slope, 2));
+    g.append("text").attr("x", W - 4).attr("y", y + rowH / 2 - 1).attr("dy", "0.32em").attr("text-anchor", "end").style("fill", "var(--muted)").style("font-family", "var(--font-data)").style("font-size", "12px").text(fmt(100 * r.cum, 0) + "%");
     g.append("rect").attr("class", "hit").attr("x", m.l).attr("y", y).attr("width", W - m.l).attr("height", rowH).attr("fill", "transparent")
-      .on("mousemove", ev => showTip(ev, ttCountry(r) + `<div class="r">${sgn(r.t.slope, 3)} Tg C/yr² · ${ST[r.st].label}</div>`)).on("mouseleave", hideTip).on("click", () => openCountry(r.iso));
+      .on("mousemove", ev => showTip(ev, ttCountry(r) + `<div class="r">${sgn(r.t.slope, 3)} Tg C/yr² (95% CI ${fmt(r.t.lo, 2)} to ${fmt(r.t.hi, 2)})</div><div class="r">${ST[r.st].label}</div>`)).on("mouseleave", hideTip).on("click", () => openCountry(r.iso));
   });
 }
 
@@ -602,7 +886,7 @@ function drawAnnualCounts(node) {
 }
 function drawHeat(node, keyNode) {
   const data = R.rows.slice().sort((a, b) => b.t.mean - a.t.mean).slice(0, 14);
-  const yrs = R.yrs, m = { t: 4, r: 36, b: 22, l: 124 }, W = chartW(node, 520), cw =(W - m.l - m.r) / yrs.length, ch = 16.5, H = m.t + m.b + data.length * ch;
+  const yrs = R.yrs, m = { t: 4, r: 40, b: 24, l: 150 }, W = chartW(node, 520), cw =(W - m.l - m.r) / yrs.length, ch = 20, H = m.t + m.b + data.length * ch;
   const st = [cssVar("--div-neg"), cssVar("--div-neg-2"), cssVar("--div-mid"), cssVar("--div-pos-2"), cssVar("--div-pos")];
   const col = d3.scaleLinear().domain([-2, -1, 0, 1, 2]).range(st).interpolate(d3.interpolateRgb).clamp(true);
   const s = svgIn(node, W, H);
@@ -616,32 +900,16 @@ function drawHeat(node, keyNode) {
         .on("mouseleave", hideTip).on("click", () => openCountry(r.iso))
         .transition().duration(DUR).delay(RM ? 0 : j * 20).attr("fill", col(lr));
     });
-    g.append("text").attr("x", W - 2).attr("y", y + ch / 2).attr("dy", "0.32em").attr("text-anchor", "end").style("font-family", "var(--font-data)").style("font-size", "10px").style("fill", "var(--muted)").text(fmt(r.t.cv, 1));
+    g.append("text").attr("x", W - 2).attr("y", y + ch / 2).attr("dy", "0.32em").attr("text-anchor", "end").style("font-family", "var(--font-data)").style("font-size", "11.5px").style("fill", "var(--muted)").text(fmt(r.t.cv, 1));
   });
-  s.append("text").attr("x", W - 2).attr("y", H - 7).attr("text-anchor", "end").style("font-size", "10px").style("fill", "var(--muted)").text("CV");
+  s.append("text").attr("x", W - 2).attr("y", H - 7).attr("text-anchor", "end").style("font-size", "11.5px").style("fill", "var(--muted)").text("CV");
   s.append("g").selectAll("text").data(yrs.filter(v => v % 5 === 0)).join("text").attr("x", v => m.l + (yrs.indexOf(v) + .5) * cw).attr("y", H - 7).attr("text-anchor", "middle")
-    .style("font-family", "var(--font-data)").style("font-size", "10px").style("fill", "var(--muted)").text(d => d);
-  keyNode.innerHTML = `<span style="display:inline-flex;align-items:center;gap:6px"><span style="font-family:var(--font-data);font-size:10.5px">¼×</span>
-    <span style="width:96px;height:9px;border-radius:2px;background:linear-gradient(90deg,${st.join(",")})"></span><span style="font-family:var(--font-data);font-size:10.5px">4×</span></span>`;
+    .style("font-family", "var(--font-data)").style("font-size", "11.5px").style("fill", "var(--muted)").text(d => d);
+  keyNode.innerHTML = `<span style="display:inline-flex;align-items:center;gap:6px"><span style="font-family:var(--font-data);font-size:12px">¼×</span>
+    <span style="width:96px;height:9px;border-radius:2px;background:linear-gradient(90deg,${st.join(",")})"></span><span style="font-family:var(--font-data);font-size:12px">4×</span></span>`;
 }
 
 // ---------- Goal 3 ----------
-function drawStatus(node) {
-  const order = ["unmanaged", "managed", "partial", "nodata", "absent"];
-  const vals = order.map(k => ({ k, v: R.byStatus[k] / R.totRise })).filter(d => d.v > 0);
-  const W = chartW(node, 520), rowH = 38, m = { t: 4, r: 52, b: 4, l: 168 }, H =m.t + m.b + vals.length * rowH;
-  const x = d3.scaleLinear().domain([0, 1]).range([m.l, W - m.r]);
-  const s = svgIn(node, W, H);
-  vals.forEach((d, i) => {
-    const y = m.t + i * rowH, names = R.rising.filter(r => r.st === d.k).slice(0, 3).map(r => short(r.name)).join(", ");
-    s.append("text").attr("x", m.l - 10).attr("y", y + 14).attr("text-anchor", "end").style("fill", "var(--ink)").attr("font-weight", 600).style("font-size", "11.5px").text(ST[d.k].label);
-    s.append("text").attr("x", m.l - 10).attr("y", y + 28).attr("text-anchor", "end").style("fill", "var(--muted)").style("font-size", "10px").text(names);
-    s.append("rect").attr("x", m.l).attr("y", y + 7).attr("width", W - m.r - m.l).attr("height", rowH - 16).attr("rx", 3).attr("fill", "var(--line)");
-    s.append("rect").attr("x", m.l).attr("y", y + 7).attr("height", rowH - 16).attr("rx", 3).attr("fill", ST[d.k].color).attr("width", 0)
-      .transition().duration(DUR).delay(RM ? 0 : i * 60).attr("width", Math.max(2, x(d.v) - m.l));
-    s.append("text").attr("x", W - m.r + 8).attr("y", y + rowH / 2 - 1).attr("dy", "0.32em").style("fill", "var(--ink)").style("font-family", "var(--font-display)").style("font-stretch", "80%").attr("font-weight", 720).style("font-size", "16px").text(fmt(100 * d.v, 0) + "%");
-  });
-}
 function drawScatter(node) {
   const data = R.rows.filter(r => r.unmanShare != null && r.t.mean >= 0.1 && isFinite(r.t.pct));
   const W = chartW(node, 520), H = 290, m = { t: 12, r: 18, b: 36, l: 50 }, placed = [];
@@ -653,8 +921,8 @@ function drawScatter(node) {
   s.append("line").attr("class", "zero").attr("x1", m.l).attr("x2", W - m.r).attr("y1", y(0)).attr("y2", y(0)).attr("stroke-width", 1.2);
   s.append("g").attr("class", "ax").attr("transform", `translate(0,${H - m.b})`).call(d3.axisBottom(x).ticks(5).tickFormat(d3.format(".0%")).tickSizeOuter(0));
   s.append("g").attr("class", "ax").attr("transform", `translate(${m.l},0)`).call(d3.axisLeft(y).ticks(6).tickFormat(d => sgn(d, 0) + "%").tickSizeOuter(0));
-  s.append("text").attr("x", (m.l + W - m.r) / 2).attr("y", H - 3).attr("text-anchor", "middle").style("fill", "var(--muted)").style("font-size", "10.5px").text("Unmanaged share of reported forest land");
-  s.append("text").attr("transform", `translate(12,${(m.t + H - m.b) / 2}) rotate(-90)`).attr("text-anchor", "middle").style("fill", "var(--muted)").style("font-size", "10.5px").text("Trend, %/yr");
+  s.append("text").attr("x", (m.l + W - m.r) / 2).attr("y", H - 3).attr("text-anchor", "middle").style("fill", "var(--muted)").style("font-size", "12px").text("Unmanaged share of reported forest land");
+  s.append("text").attr("transform", `translate(12,${(m.t + H - m.b) / 2}) rotate(-90)`).attr("text-anchor", "middle").style("fill", "var(--muted)").style("font-size", "12px").text("Trend, %/yr");
   data.sort((a, b) => b.t.mean - a.t.mean).forEach((r, i) => {
     const c = r.unmanShare > 0 ? "var(--unmanaged)" : "var(--managed)";
     s.append("circle").attr("class", "hit").attr("cx", x(r.unmanShare)).attr("cy", y(r.t.pct)).attr("r", 0)
@@ -664,7 +932,7 @@ function drawScatter(node) {
     if (r.unmanShare > 0 || r.t.mean > 8) { // largest first, so a smaller neighbour's label gives way
       const cx = x(r.unmanShare), rad = rr(r.t.mean), right = cx > W - m.r - 80;
       keepIfClear(s.append("text").attr("x", right ? cx - rad - 3 : cx + rad + 3).attr("y", y(r.t.pct)).attr("dy", "0.32em").attr("text-anchor", right ? "end" : "start")
-        .style("font-size", "10.5px").style("fill", "var(--ink)").text(short(r.name)), placed);
+        .style("font-size", "12px").style("fill", "var(--ink)").text(short(r.name)), placed);
     }
   });
 }
@@ -697,9 +965,13 @@ function openCountry(iso, focus = true) {
     <div class="dstats"><div><span class="k">Trend</span><span class="v" style="color:${r.t.sig ? "var(--accent)" : "var(--ink)"}">${sgn(r.t.pct, 1)}%</span></div>
       <div><span class="k">Mean, Tg C/yr</span><span class="v">${fmt(r.t.mean, r.t.mean < 1 ? 2 : 1)}</span></div><div><span class="k">p</span><span class="v">${pfmt(r.t.p)}</span></div></div>
     <div id="dchart"></div>
+    <div class="fxbar" aria-label="Fire carbon by forest type">${FX.map(f => r.fx[f.k] > 0 ? `<span style="flex:${r.fx[f.k]};background:${f.c}"></span>` : "").join("")}</div>
+    <div class="key">${FX.filter(f => r.fx[f.k] >= .005).map(f => `<span><span class="sw" style="background:${f.c}"></span>${f.label} ${fmt(100 * r.fx[f.k], 0)}%</span>`).join("")}</div>
     <dl class="facts">
+      <dt>Trend, Tg C/yr per year</dt><dd>${sgn(r.t.slope, 3)} (95% CI ${fmt(r.t.lo, 2)} to ${fmt(r.t.hi, 2)})</dd>
       <dt>Trend, ${SER_NAME[o]}</dt><dd>${sgn(r.to.pct, 2)}%/yr (p ${pfmt(r.to.p)})</dd>
-      <dt>Deforestation share</dt><dd>${fmt(100 * r.deforShare, 0)}%</dd>
+      <dt>Mean ${R.y1s[0]}–${R.y1s[R.y1s.length - 1]} → ${R.y2s[0]}–${state.per}</dt><dd>${fmt(r.m1, 2)} → ${fmt(r.m2, 2)} (${sgn(r.rch, 0)}%)</dd>
+      <dt>Driver in resamples</dt><dd>${fmt(100 * r.f90, 0)}% (90% group) · ${fmt(100 * r.f50, 0)}% (50%)</dd>
       <dt>Coefficient of variation</dt><dd>${fmt(r.t.cv, 2)}</dd>
       <dt>Land area (FAO)</dt><dd>${r.land == null ? "–" : fmt(r.land, 0) + " km²"}</dd>
       <dt>Forest area (FAO)</dt><dd>${r.forest == null ? "–" : fmt(r.forest, 0) + " km²"}${r.land ? ` · ${fmt(100 * r.forest / r.land, 0)}%` : ""}</dd>
@@ -713,6 +985,7 @@ function openCountry(iso, focus = true) {
   const y = d3.scaleLinear().domain([0, d3.max([...r.y, ...other]) || 1]).nice().range([H - m.b, m.t]);
   const s = d3.select("#dchart").append("svg").attr("viewBox", `0 0 ${W} ${H}`).style("width", "100%");
   s.append("g").attr("class", "grid").selectAll("line").data(y.ticks(4)).join("line").attr("x1", m.l).attr("x2", W - m.r).attr("y1", d => y(d)).attr("y2", d => y(d));
+  nrtBand(s, x, m.t, H - m.b);
   s.append("g").attr("class", "ax").attr("transform", `translate(0,${H - m.b})`).call(d3.axisBottom(x).tickValues(yrs.filter(v => v % 5 === 0)).tickSizeOuter(0));
   s.append("g").attr("class", "ax").attr("transform", `translate(${m.l},0)`).call(d3.axisLeft(y).ticks(4).tickSizeOuter(0));
   s.append("g").selectAll("rect").data(r.y).join("rect").attr("x", (v, i) => x(yrs[i])).attr("width", x.bandwidth()).attr("rx", 1.5).attr("fill", serColor(state.ser))
