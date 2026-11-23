@@ -65,13 +65,17 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 .top { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 6; background: var(--bg); padding-block: 14px 12px; border-bottom: 1px solid var(--line);
   display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px 24px; }
 @media (max-width: 640px) { .top { position: static; } } /* three rows of controls: too tall to pin on a phone */
-/* site nav, shared by the three pages */
-.site { display: flex; flex-wrap: wrap; gap: 2px; align-items: center; }
-.site a { font: 600 13px/1 var(--font-body); color: var(--ink-2); text-decoration: none; padding: 0 10px; min-height: 32px; display: inline-flex; align-items: center; border-radius: 6px; }
-.site a:hover { color: var(--ink); background: var(--line); }
-.site a[aria-current="page"] { color: var(--ink); box-shadow: inset 0 -2px 0 var(--accent); border-radius: 0; }
+/* site switch, shared by the three pages: an accent thumb marks the page and slides to the one you pick */
+.site { position: relative; display: inline-flex; align-items: center; padding: 3px; border-radius: 999px; background: var(--line); isolation: isolate; justify-self: start; max-width: 100%; overflow-x: auto; scrollbar-width: none; }
+.site a { position: relative; z-index: 1; font: 600 13.5px/1 var(--font-body); color: var(--ink-2); text-decoration: none; padding: 0 14px; min-height: 32px; display: inline-flex; align-items: center; border-radius: 999px; white-space: nowrap; transition: color .2s; }
+.site a:hover { color: var(--ink); }
+.site a[aria-current="page"] { color: var(--bg); }
+.site:not(.ready) a[aria-current="page"] { background: var(--accent); }
+.site a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.site .thumb { position: absolute; z-index: 0; top: 3px; bottom: 3px; left: 0; width: 0; border-radius: 999px; background: var(--accent); transition: transform .26s cubic-bezier(.2, .8, .2, 1), width .26s cubic-bezier(.2, .8, .2, 1); }
+@media (prefers-reduced-motion: reduce) { .site .thumb, .site a { transition: none; } }
 .title { display: grid; gap: 2px; }
-.title .site { margin: 0 0 6px -10px; }
+.title .site { margin: 0 0 10px; }
 .sub { font-size: 13.5px; color: var(--muted); }
 .sub a { color: var(--ink-2); text-decoration: underline; text-decoration-color: var(--axis); text-underline-offset: 2px; }
 .sub a:hover { color: var(--accent); }
@@ -210,7 +214,22 @@ td .link:hover { color: var(--accent); }
 <div class="wrap">
   <header class="top">
     <div class="title">
-      <nav class="site" aria-label="Site"><a href="https://rsl-slu.github.io/wildfire/">Dashboard</a><a href="https://rsl-slu.github.io/wildfire/explore.html">Explorer</a><a href="https://rsl-slu.github.io/wildfire/analyzer/" aria-current="page">Country analyzer</a></nav>
+      <nav class="site" aria-label="Site"><span class="thumb" aria-hidden="true"></span><a href="https://rsl-slu.github.io/wildfire/">Dashboard</a><a href="https://rsl-slu.github.io/wildfire/explore.html">Explorer</a><a href="https://rsl-slu.github.io/wildfire/analyzer/" aria-current="page">Country analyzer</a></nav>
+<script>
+(() => { // site switch: slide the thumb to the picked page, then go there
+  const nav = document.currentScript.previousElementSibling, thumb = nav.querySelector(".thumb"), home = nav.querySelector('a[aria-current="page"]');
+  const RM = matchMedia("(prefers-reduced-motion: reduce)").matches, cur = () => nav.querySelector('a[aria-current="page"]');
+  const place = a => { thumb.style.width = a.offsetWidth + "px"; thumb.style.transform = `translateX(${a.offsetLeft}px)`; };
+  const init = () => { thumb.style.transition = "none"; place(cur()); void thumb.offsetWidth; thumb.style.transition = ""; nav.classList.add("ready"); };
+  init(); if (document.fonts) document.fonts.ready.then(init); addEventListener("resize", init);
+  addEventListener("pageshow", e => { if (e.persisted) { cur().removeAttribute("aria-current"); home.setAttribute("aria-current", "page"); } init(); });
+  nav.querySelectorAll("a").forEach(a => a.addEventListener("click", e => {
+    if (a === cur() || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button) return;
+    e.preventDefault(); cur().removeAttribute("aria-current"); a.setAttribute("aria-current", "page"); place(a);
+    setTimeout(() => { location.href = a.href; }, RM ? 0 : 260);
+  }));
+})();
+</script>
       <h1>Forest fire trends by country</h1>
       <div class="sub">Policy paper review · GFED5.1</div>
     </div>
@@ -255,8 +274,8 @@ const state = { ser: "nd", per: 2025, top1: 20, top2: 10, top3: 10, layer: "tren
 const FX = [{ k: "bo", label: "Boreal forest", c: "var(--fx-bo)" }, { k: "tr", label: "Tropical forest", c: "var(--fx-tr)" },
   { k: "te", label: "Temperate forest", c: "var(--fx-te)" }, { k: "df", label: "Deforestation", c: "var(--fx-df)" }];
 const NRT0 = 2023; // first year from GFED5.1 NRT (VIIRS); earlier years are GFED5.1
-function pickHtml(id, val, n) {
-  return `<select class="pick" id="${id}" aria-label="How many countries">${[[10, "Top 10"], [20, "Top 20"], [0, `All (${n})`]]
+function pickHtml(id, val, n, noun = "") {
+  return `<select class="pick" id="${id}" aria-label="How many countries">${[[10, noun ? `10 ${noun}` : "Top 10"], [20, noun ? `20 ${noun}` : "Top 20"], [0, `All (${n})`]]
     .map(([v, t]) => `<option value="${v}"${v === val ? " selected" : ""}>${t}</option>`).join("")}</select>`;
 }
 function bindPick(scope, id, key, redraw) {
@@ -438,15 +457,15 @@ function render() {
     `Yes: ${sgn(R.world.t.pct, 1)}% a year worldwide${R.world.t.sig ? "" : " (not significant)"}, and ${sgn(wch, 0)}% more in ${H2} than in ${H1}.`,
     [[sgn(R.world.t.pct, 1) + "%", `per year, ${P}${R.world.t.sig ? ` (p ${pfmt(R.world.t.p)})` : ""}`], [sgn(wch, 0) + "%", `${H2} against ${H1}`],
      [`${R.up.length} / ${R.down.length}`, "countries rising / falling significantly"]]);
-  const p1a = part("Trend of each country", `The ${state.top1 || "all"} largest emitters, fastest rise on top. Filled dot = significant trend.`);
-  p1a.insertAdjacentHTML("beforeend", `<div class="panel"><div class="qrow" style="justify-content:space-between">${pickHtml("top1", state.top1, R.rel.length)}
+  const p1a = part("Trend of each country", `Biggest emitters on top. The bar shows how fast each one grows (% per year); filled dot = significant trend.`);
+  p1a.insertAdjacentHTML("beforeend", `<div class="panel"><div class="qrow" style="justify-content:space-between">${pickHtml("top1", state.top1, R.rel.length, "biggest emitters")}
     <span class="key"><span><span class="dot" style="background:${col}"></span>significant</span><span><span class="dot" style="border:1.5px solid ${col}"></span>not significant</span><span><span class="sw" style="background:var(--muted);width:2px"></span>${other}</span></span></div><div class="chart" id="c1"></div></div>`);
   const p1b = part("First half against second half", `Average per year in ${H1} and in ${H2}. No trend model needed.`);
   p1b.insertAdjacentHTML("beforeend", `<div class="grid2">${panel("World", "chA", `<span class="key"><span><span class="sw" style="background:var(--ink);height:2px"></span>half average</span></span>`)}
     <div class="panel"><div class="qrow" style="justify-content:space-between"><div class="qrow"><h3>Largest changes, Tg C/yr</h3>${pickHtml("top3", state.top3, R.rel.length)}</div><span class="key"><span><span class="dot" style="border:1.5px solid var(--ink-2)"></span>${H1}</span><span><span class="dot" style="background:${col}"></span>${H2}</span></span></div><div class="chart" id="chB"></div></div></div>`);
   g1.append(p1a, p1b);
   g1.append(howTo([
-    `<b>Significant</b> means the rise or fall is steady enough that it is unlikely to come from a few unusual fire years alone (Mann–Kendall p &lt; ${state.alpha}). ${R.rel.length} countries emit at least ${MIN_MEAN} Tg C/yr and are tested; about ${fmt(R.rel.length * state.alpha, 1)} would pass by chance.`,
+    `<b>Significant</b> means the rise or fall is steady enough that it is unlikely to come from a few unusual fire years alone (Mann–Kendall p &lt; ${state.alpha}). We test the ${R.rel.length} countries that emit at least ${MIN_MEAN} Tg C/yr. About ${fmt(R.rel.length * state.alpha, 0)} of them would look significant by luck alone. We found ${R.up.length + R.down.length}, so the pattern is real, but check single countries with care.`,
     `<b>Trend in %/yr</b> is the Theil–Sen slope divided by the country's mean, so small and large emitters compare on the same scale. The number left of each name is its size rank.`,
     `<b>Halves:</b> of the ${R.rel.length} tested countries, ${R.rel.filter(r => r.rch >= 25).length} grew by a quarter or more and ${R.rel.filter(r => r.rch <= -25).length} shrank by a quarter or more.`,
     state.per >= NRT0 ? `<b>2023–${state.per}</b> come from GFED5.1 NRT (shaded). The 2002–2022 switch at the top gives the GFED5.1-only result.` : `GFED5.1 only, 2002–2022.`]));
@@ -458,7 +477,7 @@ function render() {
      ["Share of increase, %", r => r.d > 0 ? 100 * r.d / R.totInc : null, 1], [`Trend ${H1}, %/yr`, r => r.t1.pct, 1], [`p ${H1}`, r => r.t1.p, "p"], [`Trend ${H2}, %/yr`, r => r.t2.pct, 1], [`p ${H2}`, r => r.t2.p, "p"]], 3));
   app.append(g1);
   const c1 = g1.querySelector("#c1"), redraw1 = () => { c1.innerHTML = ""; drawDots(c1); };
-  redraw1(); bindPick(g1, "top1", "top1", () => { p1a.querySelector(".phead p").innerHTML = `The ${state.top1 || "all"} largest emitters, fastest rise on top. Filled dot = significant trend.`; redraw1(); });
+  redraw1(); bindPick(g1, "top1", "top1", () => { p1a.querySelector(".phead p").innerHTML = `Biggest emitters on top. The bar shows how fast each one grows (% per year); filled dot = significant trend.`; redraw1(); });
   drawHalvesWorld(g1.querySelector("#chA"));
   const chB = g1.querySelector("#chB"), redrawH = () => { chB.innerHTML = ""; drawDumbbell(chB); };
   redrawH(); bindPick(g1, "top3", "top3", redrawH);
@@ -802,7 +821,7 @@ function drawSureHist(node) {
 // ---------- Goal 1 dots ----------
 function drawDots(node) {
   const byMean = R.rel.slice().sort((a, b) => b.t.mean - a.t.mean);
-  const data = (state.top1 ? byMean.slice(0, state.top1) : byMean).sort((a, b) => b.t.pct - a.t.pct);
+  const data = state.top1 ? byMean.slice(0, state.top1) : byMean; // biggest on top: a longer list only adds rows below
   const rowH = 20, W = chartW(node, 960), nw = W < 560, m = { t: 22, r: nw ? 54 : 84, b: 26, l: nw ? 160 : 190 }, H = m.t + m.b + data.length * rowH;
   const ext = d3.max(data, r => Math.max(Math.abs(r.t.pct), Math.abs(r.to.pct || 0))) || 1;
   const x = d3.scaleLinear().domain([-ext, ext]).nice().range([m.l, W - m.r]), col = serColor(state.ser), dc = divColor();
@@ -812,7 +831,7 @@ function drawDots(node) {
   s.append("g").attr("class", "ax").attr("transform", `translate(0,${H - m.b})`).call(d3.axisBottom(x).ticks(nw ? 3 : 10).tickFormat(d => sgn(d, 0) + "%").tickSizeOuter(0));
   const meanRank = new Map(byMean.map((r, i) => [r.iso, i + 1]));
   s.append("text").attr("x", W - 4).attr("y", 11).attr("text-anchor", "end").style("fill", "var(--muted)").style("font-size", "11.5px").text(nw ? "Tg C/yr" : "mean, Tg C/yr");
-  s.append("text").attr("x", m.l - 10).attr("y", 11).attr("text-anchor", "end").style("fill", "var(--muted)").style("font-size", "11.5px").text("size rank · country");
+  s.append("text").attr("x", m.l - 10).attr("y", 11).attr("text-anchor", "end").style("fill", "var(--muted)").style("font-size", "11.5px").text("rank by size · country");
   data.forEach((r, i) => {
     const y = m.t + i * rowH + rowH / 2, g = s.append("g");
     nameLabel(g, r, m.l - 10, y);

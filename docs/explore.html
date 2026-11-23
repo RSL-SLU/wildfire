@@ -90,14 +90,16 @@ a { color: var(--accent); }
 :focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; border-radius: 3px; }
 .num { font-family: var(--font-data); font-variant-numeric: tabular-nums; }
 
-/* site nav, shared by the three pages */
-.site { display: flex; flex-wrap: wrap; gap: 2px; align-items: center; }
-.site a { font: 600 13px/1 var(--font-body); color: var(--ink-2); text-decoration: none; padding: 0 10px; min-height: 32px; display: inline-flex; align-items: center; border-radius: 6px; }
-.site a:hover { color: var(--ink); background: var(--line); }
-.site a[aria-current="page"] { color: var(--ink); box-shadow: inset 0 -2px 0 var(--accent); border-radius: 0; }
-.site a.cta { background: var(--accent); color: var(--bg); border-radius: 999px; padding: 0 14px; margin-left: 6px; }
-.site a.cta:hover { background: var(--ink); color: var(--bg); }
-header.top .site { margin: 0 0 14px -10px; }
+/* site switch, shared by the three pages: an accent thumb marks the page and slides to the one you pick */
+.site { position: relative; display: inline-flex; align-items: center; padding: 3px; border-radius: 999px; background: var(--line); isolation: isolate; justify-self: start; max-width: 100%; overflow-x: auto; scrollbar-width: none; }
+.site a { position: relative; z-index: 1; font: 600 13.5px/1 var(--font-body); color: var(--ink-2); text-decoration: none; padding: 0 14px; min-height: 32px; display: inline-flex; align-items: center; border-radius: 999px; white-space: nowrap; transition: color .2s; }
+.site a:hover { color: var(--ink); }
+.site a[aria-current="page"] { color: var(--bg); }
+.site:not(.ready) a[aria-current="page"] { background: var(--accent); }
+.site a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.site .thumb { position: absolute; z-index: 0; top: 3px; bottom: 3px; left: 0; width: 0; border-radius: 999px; background: var(--accent); transition: transform .26s cubic-bezier(.2, .8, .2, 1), width .26s cubic-bezier(.2, .8, .2, 1); }
+@media (prefers-reduced-motion: reduce) { .site .thumb, .site a { transition: none; } }
+header.top .site { margin: 0 0 16px; }
 
 /* header */
 header.top { padding-block: 28px 18px; }
@@ -249,7 +251,22 @@ footer { color: var(--muted); font-size: 13px; padding-block: 0 40px; }
 </head>
 <body>
 <header class="top wrap">
-  <nav class="site" aria-label="Site"><a href="./">Dashboard</a><a href="explore.html" aria-current="page">Explorer</a><a href="analyzer/" class="cta">Country analyzer</a></nav>
+  <nav class="site" aria-label="Site"><span class="thumb" aria-hidden="true"></span><a href="./">Dashboard</a><a href="explore.html" aria-current="page">Explorer</a><a href="analyzer/">Country analyzer</a></nav>
+<script>
+(() => { // site switch: slide the thumb to the picked page, then go there
+  const nav = document.currentScript.previousElementSibling, thumb = nav.querySelector(".thumb"), home = nav.querySelector('a[aria-current="page"]');
+  const RM = matchMedia("(prefers-reduced-motion: reduce)").matches, cur = () => nav.querySelector('a[aria-current="page"]');
+  const place = a => { thumb.style.width = a.offsetWidth + "px"; thumb.style.transform = `translateX(${a.offsetLeft}px)`; };
+  const init = () => { thumb.style.transition = "none"; place(cur()); void thumb.offsetWidth; thumb.style.transition = ""; nav.classList.add("ready"); };
+  init(); if (document.fonts) document.fonts.ready.then(init); addEventListener("resize", init);
+  addEventListener("pageshow", e => { if (e.persisted) { cur().removeAttribute("aria-current"); home.setAttribute("aria-current", "page"); } init(); });
+  nav.querySelectorAll("a").forEach(a => a.addEventListener("click", e => {
+    if (a === cur() || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button) return;
+    e.preventDefault(); cur().removeAttribute("aria-current"); a.setAttribute("aria-current", "page"); place(a);
+    setTimeout(() => { location.href = a.href; }, RM ? 0 : 260);
+  }));
+})();
+</script>
   <h1>GFED Fire Carbon Explorer</h1>
   <p class="lede">How much carbon fires release each year, where, and in which kind of land: the world,
     the 14 GFED regions and every country, split into forest, deforestation, savanna, cropland, peat and
